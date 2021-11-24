@@ -1,3 +1,4 @@
+
 #include "Shop.h"
 
 void Shop::add_employee(const Employee& employee)
@@ -34,12 +35,6 @@ void Shop::execute_proccess()
 {
 	size_t number_of_clients = this->clients.get_size();
 	size_t number_of_employees = this->employees.get_size();
-	if (number_of_clients == 0 || number_of_employees == 0)
-	{
-		std::cout << "You don't have any clients or employees!" << std::endl;
-		return;
-	}
-
 	size_t client_count = 0;
 	while (number_of_clients > 0)
 	{
@@ -50,7 +45,7 @@ void Shop::execute_proccess()
 			size_t client_want_bananas = this->clients[k].get_want_bananas();
 			size_t client_want_schweppes = this->clients[k].get_want_schweppes();
 			size_t client_max_wait = this->clients[k].get_max_wait();
-	        size_t leave_time = client_arrival;
+			size_t leave_time = client_arrival;
 			if (this->bananas < client_want_bananas || this->schweppes < client_want_schweppes)
 			{
 				leave_time += client_max_wait;
@@ -58,21 +53,21 @@ void Shop::execute_proccess()
 				{
 					if (this->employees[i].get_status() == 'F')
 					{
-						if (this->bananas - client_want_bananas >= this->schweppes - client_want_schweppes)
+						if ((int)(this->bananas - client_want_bananas) <= (int)(this->schweppes - client_want_schweppes))
 						{
 							if (!this->are_bananas_being_delivered() || (this->are_bananas_being_delivered() && this->are_schweppes_being_delivered()))
 								this->employees[i].deliver(client_arrival, 1);
 							else
-							if (!this->are_schweppes_being_delivered() && client_want_schweppes > 0)
-								this->employees[i].deliver(client_arrival, 2);
+								if (!this->are_schweppes_being_delivered() && client_want_schweppes > 0)
+									this->employees[i].deliver(client_arrival, 2);
 						}
 						else
 						{
 							if (!this->are_schweppes_being_delivered() || (this->are_schweppes_being_delivered() && this->are_bananas_being_delivered()))
 								this->employees[i].deliver(client_arrival, 2);
 							else
-							if (!this->are_bananas_being_delivered() && client_want_bananas > 0)
-								this->employees[i].deliver(client_arrival, 1);
+								if (!this->are_bananas_being_delivered() && client_want_bananas > 0)
+									this->employees[i].deliver(client_arrival, 1);
 						}
 					}
 
@@ -95,7 +90,7 @@ void Shop::execute_proccess()
 
 						if (this->employees[i].get_product_delivering() == 2)
 							this->schweppes += 100;
-						
+
 						leave_time = employee_back;
 					}
 					break;
@@ -135,36 +130,36 @@ void Shop::execute_proccess()
 					number_of_clients--;
 				}
 				else
-				if (this->schweppes >= client_want_schweppes && this->bananas < client_want_bananas)
-				{
-					this->clients[k].leave(client_count, leave_time, this->bananas, client_want_schweppes);
-					this->bananas = 0;
-					this->schweppes -= client_want_schweppes;
-					this->clients.pop_at(k);
-					k--;
-					client_count++;
-					number_of_clients--;
-				}
-				else
-				if (this->bananas >= client_want_bananas && this->schweppes >= client_want_schweppes)
-				{
-					this->clients[k].leave(client_count, leave_time, client_want_bananas, client_want_schweppes);
-					this->bananas -= client_want_bananas;
-					this->schweppes -= client_want_schweppes;
-					this->clients.pop_at(k);
-					k--;
-					client_count++;
-					number_of_clients--;
-				}
-				else
-				{
-					this->clients[k].leave(client_count, leave_time, this->bananas, this->schweppes);
-					this->bananas = this->schweppes = 0;
-					this->clients.pop_at(k);
-					k--;
-					client_count++;
-					number_of_clients--;
-				}
+					if (this->schweppes >= client_want_schweppes && this->bananas < client_want_bananas)
+					{
+						this->clients[k].leave(client_count, leave_time, this->bananas, client_want_schweppes);
+						this->bananas = 0;
+						this->schweppes -= client_want_schweppes;
+						this->clients.pop_at(k);
+						k--;
+						client_count++;
+						number_of_clients--;
+					}
+					else
+						if (this->bananas >= client_want_bananas && this->schweppes >= client_want_schweppes)
+						{
+							this->clients[k].leave(client_count, leave_time, client_want_bananas, client_want_schweppes);
+							this->bananas -= client_want_bananas;
+							this->schweppes -= client_want_schweppes;
+							this->clients.pop_at(k);
+							k--;
+							client_count++;
+							number_of_clients--;
+						}
+						else
+						{
+							this->clients[k].leave(client_count, leave_time, this->bananas, this->schweppes);
+							this->bananas = this->schweppes = 0;
+							this->clients.pop_at(k);
+							k--;
+							client_count++;
+							number_of_clients--;
+						}
 			}
 		}
 	}
