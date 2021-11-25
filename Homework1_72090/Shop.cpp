@@ -113,8 +113,7 @@ void Shop::execute_proccess()
 				this->clients[i].leave(client_number++, client_arrival, client_want_bananas, client_want_schweppes);
 				this->bananas -= client_want_bananas;
 				this->schweppes -= client_want_schweppes;
-				this->clients.pop_at(i);
-				i--;
+				this->clients.pop_at(i--);
 				number_of_clients--;
 			}
 
