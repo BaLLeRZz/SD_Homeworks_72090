@@ -86,7 +86,7 @@ void Shop::execute_proccess()
 					should_come_back = true;
 					for (size_t k = 0; k < number_of_clients; k++)
 					{
-						if (employee_status == 'F' || employee_back > this->clients[k].get_minute_of_arrival() && employee_back > this->clients[k].get_minute_of_arrival() + this->clients[k].get_max_wait())
+						if (employee_status == 'F' || employee_back > this->clients[k].get_minute_of_arrival() + this->clients[k].get_max_wait())
 						{
 							should_come_back = false;
 							break;
@@ -135,8 +135,7 @@ void Shop::execute_proccess()
 					this->clients[i].leave(client_number++, leave_time, client_want_bananas, this->schweppes);
 					this->bananas -= client_want_bananas;
 					this->schweppes = 0;
-					this->clients.pop_at(i);
-					i--;
+					this->clients.pop_at(i--);
 					number_of_clients--;
 					continue;
 				}
@@ -146,8 +145,7 @@ void Shop::execute_proccess()
 					this->clients[i].leave(client_number++, leave_time, this->bananas, client_want_schweppes);
 					this->bananas = 0;
 					this->schweppes -= client_want_schweppes;
-					this->clients.pop_at(i);
-					i--;
+					this->clients.pop_at(i--);
 					number_of_clients--;
 					continue;
 				}
@@ -157,16 +155,14 @@ void Shop::execute_proccess()
 					this->clients[i].leave(client_number++, leave_time, client_want_bananas, client_want_schweppes);
 					this->bananas -= client_want_bananas;
 					this->schweppes -= client_want_schweppes;
-					this->clients.pop_at(i);
-					i--;
+					this->clients.pop_at(i--);
 					number_of_clients--;
 					continue;
 				}
 						
 				this->clients[i].leave(client_number++, leave_time, this->bananas, this->schweppes);
 				this->bananas = this->schweppes = 0;
-				this->clients.pop_at(i);
-				i--;
+				this->clients.pop_at(i--);
 				number_of_clients--;	
 			}
 		}
