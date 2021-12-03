@@ -61,7 +61,7 @@ void MyStore::addClients(const Client* clients, int count)
 		this->clients.push_back(clients[i]);
 }
 
-void MyStore::advanceTo(int minute)
+void MyStore::advanceTo(int minute) // nqkakva struktura ili stek, koqto da pazi vseki event pootdelno
 {
 	if (minute <= this->current_minute)
 		return;
@@ -205,7 +205,7 @@ void MyStore::execute_proccess()
 
 			if (this->bananas < client_want_bananas || this->schweppess < client_want_schweppes)
 			{
-				leave_time += client_max_wait;
+				leave_time = client_arrival + client_max_wait;
 				for (size_t j = 0; j < number_of_employees; j++)
 				{
 					if (sent_for_bananas && sent_for_schweppes)
@@ -279,13 +279,13 @@ void MyStore::execute_proccess()
 						
 						if (employee_back > this->clients[k].arriveMinute)
 						{
-							if (this->clients[k].banana > 0 && employee_delivery_product == 1 && this->clients[k].schweppes > 0 && !this->schweppes_delivered())
+							if (this->clients[k].banana > 0 && employee_delivery_product == 1 && this->clients[k].schweppes > 0 && !this->schweppes_delivered() && this->free_employees())
 							{
 								should_come_back = false;
 								break;
 							}
 
-							if (this->clients[k].schweppes > 0 && employee_delivery_product == 2 && this->clients[k].banana > 0 && !this->bananas_delivered())
+							if (this->clients[k].schweppes > 0 && employee_delivery_product == 2 && this->clients[k].banana > 0 && !this->bananas_delivered() && this->free_employees())
 							{
 								should_come_back = false;
 								break;
@@ -392,6 +392,12 @@ int main()
 	int employees, clients;
 	int arrival_time, want_bananas, want_schweppes, max_wait;
 	std::cin >> employees >> clients;
+	if (employees <= 0 || clients <= 0)
+	{
+		std::cout << "You do not have any clients or employees!" << std::endl;
+		return 0;
+	}
+
 	Client* clientsList = new Client[clients];
 	for (int i = 0; i < clients; i++)
 	{
@@ -400,7 +406,7 @@ int main()
 	}
 	MyStore store;
 	store.init(employees, 0, 0);
-	store.addClients(clientsList, 4);
+	store.addClients(clientsList, clients);
 	std::cout << std::endl;
 	store.execute_proccess();
 	delete[] clientsList;

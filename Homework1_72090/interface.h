@@ -20,6 +20,19 @@ struct Client
 	int banana{};
 	int schweppes{};
 	int maxWaitTime{};
+
+	Client() = default;
+	Client& operator=(const Client& other)
+	{
+		if (this != &other)
+		{
+			arriveMinute = other.arriveMinute;
+			banana = other.banana;
+			schweppes = other.schweppes;
+			maxWaitTime = other.maxWaitTime;
+		}
+		return *this;
+	}
 };
 
 struct Store
