@@ -17,7 +17,7 @@ class DLList
 private:
 	ListBox<T>* first{};
 	ListBox<T>* last{};
-	size_t size;
+	size_t size{};
 	void copy(const DLList<T>& other);
 	void erase();
 public:
@@ -175,7 +175,6 @@ void DLList<T>::pop_front()
 	this->size--;
 	ListBox<T>* temp = this->first;
 	this->first = this->first->next;
-	this->first->previous = nullptr;
 	delete temp;
 }
 
