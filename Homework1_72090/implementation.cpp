@@ -197,8 +197,11 @@ void MyStore::execute_proccess()
 			client_want_schweppes = this->clients[i].schweppes;
 			client_max_wait = this->clients[i].maxWaitTime;
 			leave_time = client_arrival;
-			if (should_come_back)
+			if (should_come_back || leave_time < first_to_come_back)
+			{
 				leave_time = first_to_come_back;
+				should_come_back = false;
+			}
 
 			if (this->bananas < client_want_bananas || this->schweppess < client_want_schweppes)
 			{
@@ -259,7 +262,6 @@ void MyStore::execute_proccess()
 								}
 							}
 						}
-						//continue;
 					}
 					
 					employee_status = this->employees[j].status;
@@ -294,11 +296,9 @@ void MyStore::execute_proccess()
 					if (should_come_back)
 					{
 						this->back(j);
-						//leave_time = employee_back;
 						first_to_come_back = employee_back;
 						break;
 					}
-					//break;
 				}
 			}
 			else
