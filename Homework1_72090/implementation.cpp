@@ -356,7 +356,6 @@ void MyStore::advanceTo(int minute)
 							else
 								this->handler->onWorkerBack(this->employees[i].minute_back, schweppes);
 						}
-						break;
 					}
 				}
 			}
