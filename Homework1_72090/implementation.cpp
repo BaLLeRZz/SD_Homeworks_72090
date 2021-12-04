@@ -347,6 +347,17 @@ void MyStore::advanceTo(int minute)
 				if (this->employees[i].status == 'B')
 				{
 					this->back(i);
+					if (this->back_from_delivery)
+					{
+						if (this->handler)
+						{
+							if (this->employees[i].product_delivering == 1)
+								this->handler->onWorkerBack(this->employees[i].minute_back, banana);
+							else
+								this->handler->onWorkerBack(this->employees[i].minute_back, schweppes);
+						}
+						break;
+					}
 				}
 			}
 		}
