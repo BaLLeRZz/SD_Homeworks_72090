@@ -137,7 +137,12 @@ void MyStore::advanceTo(int minute)
 							{
 								this->deliver(j, employee_off, 1);
 								if (this->sent_for_delivery)
-								    sent_for_bananas = true;
+								{
+									sent_for_bananas = true;
+
+									if (this->handler)
+										this->handler->onWorkerSend(employee_off, banana);
+								}
 							}
 							else
 								if (this->bananas_delivered() && client_want_schweppes > 0)
@@ -149,6 +154,9 @@ void MyStore::advanceTo(int minute)
 										{
 											sent_for_schweppes = true;
 											sent_for_bananas = true;
+
+											if (this->handler)
+												this->handler->onWorkerSend(employee_off, schweppes);
 										}
 									}
 								}
@@ -159,7 +167,12 @@ void MyStore::advanceTo(int minute)
 							{
 								this->deliver(j, employee_off, 2);
 								if (this->sent_for_delivery)
-								    sent_for_schweppes = true;
+								{
+									sent_for_schweppes = true;
+
+									if (this->handler)
+										this->handler->onWorkerSend(employee_off, schweppes);
+								}
 							}
 
 							else
@@ -172,6 +185,9 @@ void MyStore::advanceTo(int minute)
 										{
 											sent_for_bananas = true;
 											sent_for_schweppes = true;
+
+											if (this->handler)
+												this->handler->onWorkerSend(employee_off, banana);
 										}
 									}
 								}
@@ -213,6 +229,14 @@ void MyStore::advanceTo(int minute)
 						if (this->back_from_delivery)
 						{
 							first_to_come_back = employee_back;
+
+							if (this->handler)
+							{
+								if (employee_delivery_product == 1)
+									this->handler->onWorkerBack(employee_back, banana);
+								else
+									this->handler->onWorkerBack(employee_back, schweppes);
+							}
 							break;
 						}
 					}
@@ -223,6 +247,9 @@ void MyStore::advanceTo(int minute)
 				this->leave(this->client_numbers[i], leave_time, client_want_bananas, client_want_schweppes);
 				if (this->client_has_left)
 				{
+					if (this->handler)
+						this->handler->onClientDepart(this->client_numbers[i], leave_time, client_want_bananas, client_want_schweppes);
+
 					this->bananas -= client_want_bananas;
 					this->schweppess -= client_want_schweppes;
 					this->clients.pop_at(i);
@@ -252,6 +279,9 @@ void MyStore::advanceTo(int minute)
 					this->leave(this->client_numbers[i], leave_time, client_want_bananas, this->schweppess);
 					if (this->client_has_left)
 					{
+						if (this->handler)
+							this->handler->onClientDepart(this->client_numbers[i], leave_time, client_want_bananas, this->schweppess);
+
 						this->bananas -= client_want_bananas;
 						this->schweppess = 0;
 						this->clients.pop_at(i);
@@ -266,6 +296,9 @@ void MyStore::advanceTo(int minute)
 					this->leave(this->client_numbers[i], leave_time, this->bananas, client_want_schweppes);
 					if (this->client_has_left)
 					{
+						if (this->handler)
+							this->handler->onClientDepart(this->client_numbers[i], leave_time, this->bananas, client_want_schweppes);
+
 						this->bananas = 0;
 						this->schweppess -= client_want_schweppes;
 						this->clients.pop_at(i);
@@ -280,6 +313,9 @@ void MyStore::advanceTo(int minute)
 					this->leave(this->client_numbers[i], leave_time, client_want_bananas, client_want_schweppes);
 					if (this->client_has_left)
 					{
+						if (this->handler)
+							this->handler->onClientDepart(this->client_numbers[i], leave_time, client_want_bananas, client_want_schweppes);
+
 						this->bananas -= client_want_bananas;
 						this->schweppess -= client_want_schweppes;
 						this->clients.pop_at(i);
@@ -292,6 +328,9 @@ void MyStore::advanceTo(int minute)
 				this->leave(this->client_numbers[i], leave_time, this->bananas, this->schweppess);
 				if (this->client_has_left)
 				{
+					if (this->handler)
+						this->handler->onClientDepart(this->client_numbers[i], leave_time, this->bananas, this->schweppess);
+
 					this->bananas = this->schweppess = 0;
 					this->clients.pop_at(i);
 					this->client_numbers.pop_at(i);
