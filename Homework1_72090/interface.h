@@ -26,10 +26,10 @@ struct Client
 	{
 		if (this != &other)
 		{
-			arriveMinute = other.arriveMinute;
-			banana = other.banana;
-			schweppes = other.schweppes;
-			maxWaitTime = other.maxWaitTime;
+			this->arriveMinute = other.arriveMinute;
+			this->banana = other.banana;
+			this->schweppes = other.schweppes;
+			this->maxWaitTime = other.maxWaitTime;
 		}
 		return *this;
 	}
