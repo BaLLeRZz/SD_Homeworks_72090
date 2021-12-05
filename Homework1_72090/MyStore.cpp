@@ -74,6 +74,9 @@ void MyStore::advanceTo(int minute)
 				leave_time = client_arrival + client_max_wait;
 				for (size_t j = 0; j < number_of_employees; j++)
 				{
+					if (first_to_leave > client_arrival)
+						break;
+
 					if (sent_for_bananas && sent_for_schweppes)
 						break;
 
@@ -90,9 +93,6 @@ void MyStore::advanceTo(int minute)
 							employee_off = employee_back;
 						else
 							employee_off = client_arrival;
-
-						if (employee_off < first_to_leave)
-							employee_off = first_to_leave;
 
 						if (this->bananas - client_want_bananas <= this->schweppess - client_want_schweppes)
 						{
@@ -499,7 +499,7 @@ int main()
 	store.init(employees, 10, 0);
 	store.addClients(clientsList, clients);
 	std::cout << std::endl;
-	store.advanceTo(20); // 2 2 0 10 10 20 10 10 0 0
+	store.advanceTo(10); // 2 2 0 10 10 20 10 10 0 0
 	delete[] clientsList;
 	return 0;
 }
