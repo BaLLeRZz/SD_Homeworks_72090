@@ -48,6 +48,7 @@ void MyStore::advanceTo(int minute)
 	int first_to_come_back = 0;
 	bool sent_for_bananas;
 	bool sent_for_schweppes;
+	int first_to_leave = 0;
 	while (number_of_clients > 0)
 	{
 		if (!this->client_has_left && !this->back_from_delivery)
@@ -76,10 +77,10 @@ void MyStore::advanceTo(int minute)
 					if (sent_for_bananas && sent_for_schweppes)
 						break;
 
-					if (sent_for_bananas && client_want_schweppes == 0)
+					if (sent_for_bananas && client_want_schweppes <= this->schweppess)
 						break;
 
-					if (sent_for_schweppes && client_want_bananas == 0)
+					if (sent_for_schweppes && client_want_bananas <= this->bananas)
 						break;
 
 					employee_back = this->employees[j].minute_back;
@@ -89,6 +90,9 @@ void MyStore::advanceTo(int minute)
 							employee_off = employee_back;
 						else
 							employee_off = client_arrival;
+
+						if (employee_off < first_to_leave)
+							employee_off = first_to_leave;
 
 						if (this->bananas - client_want_bananas <= this->schweppess - client_want_schweppes)
 						{
@@ -102,9 +106,11 @@ void MyStore::advanceTo(int minute)
 									if (this->handler)
 										this->handler->onWorkerSend(employee_off, banana);
 								}
+								else
+									return;
 							}
 							else
-								if (this->bananas_delivered() && client_want_schweppes > 0)
+								if (this->bananas_delivered() && this->schweppess < client_want_schweppes)
 								{
 									if (!this->schweppes_delivered() || (this->schweppes_delivered() && this->schweppess + 100 < client_want_schweppes))
 									{
@@ -117,6 +123,8 @@ void MyStore::advanceTo(int minute)
 											if (this->handler)
 												this->handler->onWorkerSend(employee_off, schweppes);
 										}
+										else
+											return;
 									}
 								}
 						}
@@ -132,10 +140,12 @@ void MyStore::advanceTo(int minute)
 									if (this->handler)
 										this->handler->onWorkerSend(employee_off, schweppes);
 								}
+								else
+									return;
 							}
 
 							else
-								if (this->schweppes_delivered() && client_want_bananas > 0)
+								if (this->schweppes_delivered() && this->bananas < client_want_bananas)
 								{
 									if (!this->bananas_delivered() || (this->bananas_delivered() && this->bananas + 100 < client_want_bananas))
 									{
@@ -148,6 +158,8 @@ void MyStore::advanceTo(int minute)
 											if (this->handler)
 												this->handler->onWorkerSend(employee_off, banana);
 										}
+										else
+											return;
 									}
 								}
 						}
@@ -214,6 +226,7 @@ void MyStore::advanceTo(int minute)
 					this->clients.pop_at(i);
 					this->client_numbers.pop_at(i);
 					number_of_clients--;
+					first_to_leave = leave_time;
 				}
 				break;
 			}
@@ -225,6 +238,15 @@ void MyStore::advanceTo(int minute)
 			for (size_t j = 0; j < number_of_employees; j++)
 			{
 				if (this->employees[j].status == 'B' && this->employees[j].minute_back <= leave_time)
+				{
+					should_leave = false;
+					break;
+				}
+			}
+
+			for (size_t j = 0; j < clients_left; j++)
+			{
+				if (this->clients[j].arriveMinute + this->clients[j].maxWaitTime < leave_time)
 				{
 					should_leave = false;
 					break;
@@ -246,6 +268,7 @@ void MyStore::advanceTo(int minute)
 						this->clients.pop_at(i);
 						this->client_numbers.pop_at(i);
 						number_of_clients--;
+						first_to_leave = leave_time;
 					}
 					break;
 				}
@@ -263,6 +286,7 @@ void MyStore::advanceTo(int minute)
 						this->clients.pop_at(i);
 						this->client_numbers.pop_at(i);
 						number_of_clients--;
+						first_to_leave = leave_time;
 					}
 					break;
 				}
@@ -280,6 +304,7 @@ void MyStore::advanceTo(int minute)
 						this->clients.pop_at(i);
 						this->client_numbers.pop_at(i);
 						number_of_clients--;
+						first_to_leave = leave_time;
 					}
 					break;
 				}
@@ -294,6 +319,7 @@ void MyStore::advanceTo(int minute)
 					this->clients.pop_at(i);
 					this->client_numbers.pop_at(i);
 					number_of_clients--;
+					first_to_leave = leave_time;
 				}
 				break;
 			}
@@ -470,10 +496,10 @@ int main()
 		clientsList[i] = Client{ arrival_time, want_bananas, want_schweppes, max_wait };
 	}
 	MyStore store;
-	store.init(employees, 0, 0);
+	store.init(employees, 10, 0);
 	store.addClients(clientsList, clients);
 	std::cout << std::endl;
-	store.advanceTo(store.get_max_minute());
+	store.advanceTo(20); // 2 2 0 10 10 20 10 10 0 0
 	delete[] clientsList;
 	return 0;
 }
