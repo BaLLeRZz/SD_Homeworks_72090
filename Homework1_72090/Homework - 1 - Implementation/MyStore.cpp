@@ -74,9 +74,6 @@ void MyStore::advanceTo(int minute)
 				leave_time = client_arrival + client_max_wait;
 				for (size_t j = 0; j < number_of_employees; j++)
 				{
-					if (first_to_leave > client_arrival)
-						break;
-
 					if (sent_for_bananas && sent_for_schweppes)
 						break;
 
@@ -87,7 +84,7 @@ void MyStore::advanceTo(int minute)
 						break;
 
 					employee_back = this->employees[j].minute_back;
-					if (this->employees[j].status == 'F')
+					if (this->employees[j].status == 'F' && first_to_leave <= client_arrival)
 					{
 						if (employee_back >= client_arrival && employee_back <= client_arrival + client_max_wait)
 							employee_off = employee_back;
