@@ -133,6 +133,8 @@ string Hierarchy::recursive_manager(const Node* node, const string& name) const
 
 	for (size_t i = 0; i < number_of_employees; i++)
 		this->recursive_manager(node->children[i], name);
+
+	return "";
 }
 
 int Hierarchy::recursive_sub_ordinates(const Node* node, const string& name) const
@@ -147,6 +149,7 @@ int Hierarchy::recursive_sub_ordinates(const Node* node, const string& name) con
 	for (size_t i = 0; i < number_of_employees; i++)
 		this->recursive_sub_ordinates(node->children[i], name);
 
+	return 0;
 }
 
 unsigned long Hierarchy::recursive_getSalary(const Node* node, const string& who, unsigned long salary) const
@@ -219,6 +222,131 @@ bool Hierarchy::recursive_hire(Node* node, const string& who, const string& boss
 	return false;
 }
 
+Node* Hierarchy::find_max_salary_employee(const Node* node)
+{
+	if (!node || node->children.get_size() == 0)
+		return nullptr;
+
+	Node* max_salary_employee = new Node(node->children[0]->value);
+	size_t number_of_employees = node->children.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		for (size_t j = i; j < number_of_employees; j++)
+		{
+			if (this->getSalary(node->children[i]->value) < this->getSalary(node->children[j]->value))
+				max_salary_employee = this->copy(node->children[j]);
+
+			else if (this->getSalary(node->children[i]->value) == this->getSalary(node->children[j]->value))
+			{
+				size_t length_i = node->children[i]->value.size();
+				size_t length_j = node->children[j]->value.size();
+				bool flag = false;
+				if (length_i < length_j)
+				{
+					for (size_t k = 0; k < length_i; k++)
+					{
+						if (node->children[i]->value[k] < node->children[j]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[i]);
+							flag = true;
+							break;
+						}
+
+						if (node->children[i]->value[k] > node->children[j]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[j]);
+							flag = true;
+							break;
+						}
+					}
+
+					if (!flag)
+						max_salary_employee = this->copy(node->children[i]);
+				}
+				else if (length_i > length_j)
+				{
+					for (size_t k = 0; k < length_j; k++)
+					{
+						if (node->children[j]->value[k] < node->children[i]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[j]);
+							flag = true;
+							break;
+						}
+
+						if (node->children[j]->value[k] > node->children[i]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[i]);
+							flag = true;
+							break;
+						}
+					}
+
+					if (!flag)
+						max_salary_employee = this->copy(node->children[j]);
+				}
+				else
+				{
+					for (size_t k = 0; k < length_i; k++)
+					{
+						if (node->children[i]->value[k] < node->children[j]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[i]);
+							break;
+						}
+
+						if (node->children[i]->value[k] > node->children[j]->value[k])
+						{
+							max_salary_employee = this->copy(node->children[j]);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return max_salary_employee;
+}
+
+void Hierarchy::recursive_incorporate(Node* node)
+{
+	if (!node || node->children.get_size() == 0)
+		return;
+
+	size_t number_of_employees = node->children.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		this->recursive_incorporate(node->children[i]);
+	
+	if (number_of_employees >= 2)
+	{
+		Node* temp = new Node(node->children[0]->value);
+		Node* max_salary_employee = new Node(node->children[0]->value);
+		max_salary_employee = this->copy(this->find_max_salary_employee(node));
+		for (size_t i = 0; i < number_of_employees; i++)
+		{
+			if (node->children[i]->value == max_salary_employee->value)
+			{
+				if (i != 0)
+				{
+					temp = this->copy(node->children[0]);
+					node->children[0] = this->copy(node->children[i]);
+					node->children[i] = this->copy(temp);
+				}
+				break;
+			}
+		}
+
+		for (size_t i = 1; i < number_of_employees; i++)
+			node->children[0]->children.push_back(node->children[i]);
+		
+		Node* cpy = new Node(node->children[0]->value);
+		cpy = this->copy(node->children[0]);
+		node->children.clear();
+		node->children.push_back(cpy);
+	}
+}
+
 string Hierarchy::print() const
 {
 	return this->recursive_print(this->root);
@@ -267,4 +395,9 @@ bool Hierarchy::fire(const string& who)
 bool Hierarchy::hire(const string& who, const string& boss)
 {
 	return this->recursive_hire(this->root, who, boss);
+}
+
+void Hierarchy::incorporate()
+{
+	this->recursive_incorporate(this->root);
 }

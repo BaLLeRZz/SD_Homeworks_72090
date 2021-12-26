@@ -31,6 +31,8 @@ private:
     unsigned long recursive_getSalary(const Node* node, const string& who, unsigned long salary) const;
     bool recursive_fire(Node* node, const string& who);
     bool recursive_hire(Node* node, const string& who, const string& boss);
+    Node* find_max_salary_employee(const Node* node);
+    void recursive_incorporate(Node* node);
 public:
     Hierarchy(Hierarchy&& r) noexcept;
     Hierarchy(const Hierarchy& r);
