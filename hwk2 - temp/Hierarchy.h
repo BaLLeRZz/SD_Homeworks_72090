@@ -30,13 +30,15 @@ private:
     int recursive_sub_ordinates(const Node* node, const string& name) const;
     unsigned long recursive_getSalary(const Node* node, const string& who, unsigned long salary) const;
     bool recursive_fire(Node* node, const string& who);
+    Node* find_employee(Node* node, const string& name) const;
     bool recursive_hire(Node* node, const string& who, const string& boss);
     Node* find_max_salary_employee(const Node* node);
     void recursive_incorporate(Node* node);
+    void recursive_modernize(Node* node, size_t level);
 public:
     Hierarchy(Hierarchy&& r) noexcept;
     Hierarchy(const Hierarchy& r);
-    Hierarchy(const string& data);
+    Hierarchy(const string& data); //////////
     ~Hierarchy() noexcept;
     void operator=(const Hierarchy&) = delete;
 
@@ -57,5 +59,5 @@ public:
     void incorporate();
     void modernize();
 
-    Hierarchy join(const Hierarchy& right) const;
+    //Hierarchy join(const Hierarchy& right) const;
 };
