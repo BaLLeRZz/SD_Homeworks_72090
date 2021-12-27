@@ -36,11 +36,12 @@ private:
     void recursive_incorporate(Node* node);
     void recursive_modernize(Node* node, size_t level);
     void get_data_from_string(const string& data, Vector<string>& bosses, Vector<string>& employees);
+    void make_relationships(Node* node, Vector<string>& bosses, Vector<string>& employees);
     void fill_hierarchy(const string& data);
 public:
     Hierarchy(Hierarchy&& r) noexcept;
     Hierarchy(const Hierarchy& r);
-    Hierarchy(const string& data); //////////
+    Hierarchy(const string& data);
     ~Hierarchy() noexcept;
     void operator=(const Hierarchy&) = delete;
 

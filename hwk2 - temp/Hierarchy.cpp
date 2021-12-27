@@ -39,10 +39,9 @@ Hierarchy::Hierarchy(const Hierarchy& r)
 	this->size = r.size;
 }
 
-Hierarchy::Hierarchy(const string& data) ///////
+Hierarchy::Hierarchy(const string& data)
 {
-	this->root->value = data;
-	this->size = 1;
+	this->fill_hierarchy(data);
 }
 
 Hierarchy::~Hierarchy() noexcept
@@ -471,11 +470,66 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 	}
 }
 
+void Hierarchy::make_relationships(Node* node, Vector<string>& bosses, Vector<string>& employees)
+{
+	if (!node)
+		return;
+
+	size_t relationships = bosses.get_size();
+	for (size_t i = 0; i < relationships; i++)
+	{
+		if (node->value == bosses[i])
+		{
+			Node* temp = new Node(employees[i]);
+			node->children.push_back(temp);
+		}
+	}
+
+	size_t number_of_employees = node->children.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		this->make_relationships(node->children[i], bosses, employees);
+}
+
 void Hierarchy::fill_hierarchy(const string& data)
 {
 	Vector<string> bosses{};
 	Vector<string> employees{};
 	this->get_data_from_string(data, bosses, employees);
+	if (bosses.get_size() != employees.get_size() || bosses[0] != "Uspeshnia")
+	{
+		std::cout << "Incorrect Input!" << std::endl;
+		this->erase(this->root);
+		return;
+	}
+	size_t relationships = bosses.get_size();
+	this->size = bosses.get_size() + 1;
+	for (size_t i = 0; i < relationships; i++)
+	{
+		if (bosses[i] != bosses[i + 1])
+		{
+			for (size_t j = i + 1; j < relationships; j++)
+			{
+				if (bosses[i] == bosses[j])
+				{
+					std::cout << "Incorrect Input!" << std::endl;
+					this->erase(this->root);
+					return;
+				}
+			}
+		}
+
+		for (size_t j = i + 1; j < relationships; j++)
+		{
+			if (employees[i] == employees[j])
+			{
+				std::cout << "Incorrect Input!" << std::endl;
+				this->erase(this->root);
+				return;
+			}
+		}
+	}
+
+	this->make_relationships(this->root, bosses, employees);
 }
 
 string Hierarchy::print() const
