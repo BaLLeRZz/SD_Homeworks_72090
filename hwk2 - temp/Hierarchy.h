@@ -35,6 +35,7 @@ private:
     Node* find_max_salary_employee(const Node* node);
     void recursive_incorporate(Node* node);
     void recursive_modernize(Node* node, size_t level);
+    void get_data_from_string(const string& data, Vector<string>& bosses, Vector<string>& employees);
     void fill_hierarchy(const string& data);
 public:
     Hierarchy(Hierarchy&& r) noexcept;

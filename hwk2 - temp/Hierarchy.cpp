@@ -396,11 +396,10 @@ void Hierarchy::recursive_modernize(Node* node, size_t level)
 	}
 }
 
-void Hierarchy::fill_hierarchy(const string& data)
+void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses, Vector<string>& employees)
 {
 	size_t length = data.size();
 	string boss{}, employee{};
-	bool flag = true;
 	for (size_t i = 0; i < length; i++)
 	{
 		if (data[i] == '-')
@@ -436,7 +435,7 @@ void Hierarchy::fill_hierarchy(const string& data)
 							return;
 						}
 
-						if(data[k] == ' ')
+						if (data[k] == ' ')
 							continue;
 
 						employee += data[k];
@@ -465,8 +464,18 @@ void Hierarchy::fill_hierarchy(const string& data)
 			}
 		}
 
-		//if ()
+		bosses.push_back(boss);
+		employees.push_back(employee);
+		boss.clear();
+		employee.clear();
 	}
+}
+
+void Hierarchy::fill_hierarchy(const string& data)
+{
+	Vector<string> bosses{};
+	Vector<string> employees{};
+	this->get_data_from_string(data, bosses, employees);
 }
 
 string Hierarchy::print() const
