@@ -17,8 +17,8 @@ struct Node
 class Hierarchy
 {
 private:
-    Node* root;
-    size_t size = 0;
+    Node* root = new Node("Uspeshnia");
+    size_t size{};
     Node* copy(const Node* other_root) const;
     void erase(Node* current_root);
     string recursive_print(const Node* node) const;

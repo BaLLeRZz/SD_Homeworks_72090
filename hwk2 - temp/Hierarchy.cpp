@@ -55,7 +55,11 @@ string Hierarchy::recursive_print(const Node* node) const
 	if (!node)
 		return "";
 
+	
 	size_t number_of_employees = node->children.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		std::cout << node->value << " - " << node->children[i]->value << std::endl;
+
 	for (size_t i = 0; i < number_of_employees; i++)
 		this->recursive_print(node->children[i]);
 
@@ -399,8 +403,10 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 {
 	size_t length = data.size();
 	string boss{}, employee{};
+	bool flag = false;
 	for (size_t i = 0; i < length; i++)
 	{
+		flag = false;
 		if (data[i] == '-')
 		{
 			std::cout << "Incorrect Input!" << std::endl;
@@ -408,7 +414,7 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 			return;
 		}
 
-		if (data[i] == ' ')
+		if (data[i] == ' ' || data[i] == '\n')
 			continue;
 
 		boss += data[i];
@@ -416,15 +422,18 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 		{
 			for (size_t j = i + 1; j < length; j++)
 			{
-				if (j + 1 >= length || (data[j + 1] != ' ' && data[j + 1] != '-'))
-				{
-					std::cout << "Incorrect Input!" << std::endl;
-					this->erase(this->root);
-					return;
-				}
+				if (data[j] == ' ')
+					continue;
 
 				if (data[j] == '-')
 				{
+					if (j + 1 >= length)
+					{
+						std::cout << "Incorrect Input!" << std::endl;
+						this->erase(this->root);
+						return;
+					}
+
 					for (size_t k = j + 1; k < length; k++)
 					{
 						if (data[k] == '-')
@@ -447,26 +456,37 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 
 						if (k + 1 == length)
 						{
+							flag = true;
 							i = k;
 							j = length - 1;
+							bosses.push_back(boss);
+							employees.push_back(employee);
+							boss.clear();
+							employee.clear();
 							break;
 						}
 
 						if (data[k + 1] == ' ' || data[k + 1] == '\n')
 						{
+							flag = true;
 							i = k;
 							j = length - 1;
+							bosses.push_back(boss);
+							employees.push_back(employee);
+							boss.clear();
+							employee.clear();
 							break;
 						}
 					}
 				}
 			}
+			if (!flag)
+			{
+				std::cout << "Incorrect Input!" << std::endl;
+				this->erase(this->root);
+				return;
+			}
 		}
-
-		bosses.push_back(boss);
-		employees.push_back(employee);
-		boss.clear();
-		employee.clear();
 	}
 }
 
@@ -592,7 +612,9 @@ void Hierarchy::modernize()
 	this->recursive_modernize(this->root, 0);
 }
 
-//int main()
-//{
-//	Hierarchy a;
-//}
+int main()
+{
+	Hierarchy a("Uspeshnia-Gosho\nUspeshnia-Misho\nUspeshnia-Slavi\nGosho-Dancho\nGosho-Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
+	a.print();
+	return 0;
+}
