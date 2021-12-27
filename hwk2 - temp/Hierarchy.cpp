@@ -396,6 +396,79 @@ void Hierarchy::recursive_modernize(Node* node, size_t level)
 	}
 }
 
+void Hierarchy::fill_hierarchy(const string& data)
+{
+	size_t length = data.size();
+	string boss{}, employee{};
+	bool flag = true;
+	for (size_t i = 0; i < length; i++)
+	{
+		if (data[i] == '-')
+		{
+			std::cout << "Incorrect Input!" << std::endl;
+			this->erase(this->root);
+			return;
+		}
+
+		if (data[i] == ' ')
+			continue;
+
+		boss += data[i];
+		if (i + 1 < length && (data[i + 1] == ' ' || data[i + 1] == '-'))
+		{
+			for (size_t j = i + 1; j < length; j++)
+			{
+				if (j + 1 >= length || (data[j + 1] != ' ' && data[j + 1] != '-'))
+				{
+					std::cout << "Incorrect Input!" << std::endl;
+					this->erase(this->root);
+					return;
+				}
+
+				if (data[j] == '-')
+				{
+					for (size_t k = j + 1; k < length; k++)
+					{
+						if (data[k] == '-')
+						{
+							std::cout << "Incorrect Input!" << std::endl;
+							this->erase(this->root);
+							return;
+						}
+
+						if(data[k] == ' ')
+							continue;
+
+						employee += data[k];
+						if (k + 1 > length || data[k + 1] == '-')
+						{
+							std::cout << "Incorrect Input!" << std::endl;
+							this->erase(this->root);
+							return;
+						}
+
+						if (k + 1 == length)
+						{
+							i = k;
+							j = length - 1;
+							break;
+						}
+
+						if (data[k + 1] == ' ' || data[k + 1] == '\n')
+						{
+							i = k;
+							j = length - 1;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//if ()
+	}
+}
+
 string Hierarchy::print() const
 {
 	return this->recursive_print(this->root);
