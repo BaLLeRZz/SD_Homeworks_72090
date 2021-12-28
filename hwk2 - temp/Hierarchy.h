@@ -1,37 +1,19 @@
 #pragma once
 #include<string>
 #include<fstream>
-#include<string>
 #include"Vector.h"
 
 using std::string;
 
-struct Node
-{
-    string value{};
-    Vector<Node*> children{};
-    Node() = default;
-    Node(const string value) : value(value) {};
-};
-
 class Hierarchy
 {
 private:
-    Node* root = new Node("Uspeshnia");
-    Vector<Node*> bosses{};
-    Vector<Node*> employees{};
+    Vector<string> bosses{};
+    Vector<string> employees{};
     size_t size{};
-    Node* copy(const Node* other_root) const;
-    void erase(Node* current_root);
-    int recursive_longest_chain(Node* node, size_t count, size_t current_count) const;
-    int recursive_num_overloaded(const Node* node, int level, size_t count, size_t num) const;
-    Node* find_employee(const string& name) const;
-    bool recursive_hire(Node* node, const string& who, const string& boss);
-    Node* find_max_salary_employee(const Node* node);
-    void recursive_incorporate(Node* node);
-    void recursive_modernize(Node* node, size_t level);
+    void copy(const Hierarchy& other);
+    void erase();
     void get_data_from_string(const string& data);
-    void make_relationships(Node* node);
     void fill_hierarchy(const string& data);
 public:
     Hierarchy(Hierarchy&& r) noexcept; // raboti
@@ -49,7 +31,7 @@ public:
 
     string manager(const string& name) const; // raboti
     int num_subordinates(const string& name) const; // raboti
-    unsigned long getSalary(const string& who) const; // raboti
+    unsigned long getSalary(const string& who) const; // raboti (optimizirai sluchaq za uspeshnia)
 
     bool fire(const string& who); // raboti
     bool hire(const string& who, const string& boss);
