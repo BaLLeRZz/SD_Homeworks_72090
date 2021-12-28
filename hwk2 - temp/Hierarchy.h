@@ -18,42 +18,39 @@ class Hierarchy
 {
 private:
     Node* root = new Node("Uspeshnia");
+    Vector<Node*> bosses{};
+    Vector<Node*> employees{};
     size_t size{};
     Node* copy(const Node* other_root) const;
     void erase(Node* current_root);
-    string recursive_print(const Node* node) const;
-    int recursive_longest_chain(const Node* node, size_t count, size_t current_count) const;
-    bool recursive_find(const Node* node, const string& name) const;
-    int recursive_num_employees(const Node* node, size_t count) const;
+    int recursive_longest_chain(Node* node, size_t count, size_t current_count) const;
     int recursive_num_overloaded(const Node* node, int level, size_t count, size_t num) const;
-    string recursive_manager(const Node* node, const string& name) const;
-    int recursive_sub_ordinates(const Node* node, const string& name) const;
     unsigned long recursive_getSalary(const Node* node, const string& who, unsigned long salary) const;
     bool recursive_fire(Node* node, const string& who);
-    Node* find_employee(Node* node, const string& name) const;
+    Node* find_employee(const string& name) const;
     bool recursive_hire(Node* node, const string& who, const string& boss);
     Node* find_max_salary_employee(const Node* node);
     void recursive_incorporate(Node* node);
     void recursive_modernize(Node* node, size_t level);
-    void get_data_from_string(const string& data, Vector<string>& bosses, Vector<string>& employees);
-    void make_relationships(Node* node, Vector<string>& bosses, Vector<string>& employees);
+    void get_data_from_string(const string& data);
+    void make_relationships(Node* node);
     void fill_hierarchy(const string& data);
 public:
-    Hierarchy(Hierarchy&& r) noexcept;
+    Hierarchy(Hierarchy&& r) noexcept; // raboti
     Hierarchy(const Hierarchy& r);
-    Hierarchy(const string& data);
-    ~Hierarchy() noexcept;
-    void operator=(const Hierarchy&) = delete;
+    Hierarchy(const string& data); // raboti
+    ~Hierarchy() noexcept; // raboti
+    void operator=(const Hierarchy&) = delete; // raboti
 
-    string print() const;
+    string print() const; // raboti
 
     int longest_chain() const;
-    bool find(const string& name) const;
-    int num_employees() const;
+    bool find(const string& name) const; // raboti
+    int num_employees() const; // raboti
     int num_overloaded(int level = 20) const;
 
-    string manager(const string& name) const;
-    int num_subordinates(const string& name) const;
+    string manager(const string& name) const; // raboti
+    int num_subordinates(const string& name) const; // raboti
     unsigned long getSalary(const string& who) const;
 
     bool fire(const string& who);

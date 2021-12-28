@@ -50,62 +50,29 @@ Hierarchy::~Hierarchy() noexcept
 	this->root = nullptr;
 }
 
-string Hierarchy::recursive_print(const Node* node) const
-{
-	if (!node)
-		return "";
-
-	
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		std::cout << node->value << " - " << node->children[i]->value << std::endl;
-
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_print(node->children[i]);
-
-	return node->value;
-}
-
-int Hierarchy::recursive_longest_chain(const Node* node, size_t count, size_t current_count) const
+int Hierarchy::recursive_longest_chain(Node* node, size_t count, size_t current_count) const
 {
 	if (!node)
 		return 0;
 
-	if (current_count < count)
-		current_count = count;
+	//if (current_count < count)
+		//current_count = count;
 
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_longest_chain(node->children[i], count++, current_count);
+	Node& cpy = *node;
+	std::cout << cpy.value << std::endl;
+	cpy.value = "patkan";
+	std::cout << node->value << std::endl;
+
+	//std::cout << node->value << " - " << count << std::endl;
+	//size_t number_of_employees = node->children.get_size();
+	//for (size_t i = 0; i < number_of_employees; i++)
+	//{
+	//    //std::cout << "Next Iteration:" << std::endl;
+	//	this->recursive_longest_chain(node->children[i], count += 1, current_count);
+	//	count -= 1; 
+	//}
 
 	return current_count;
-}
-
-bool Hierarchy::recursive_find(const Node* node, const string& name) const
-{
-	if (!node)
-		return false;
-
-	if (node->value == name)
-		return true;
-
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_find(node->children[i], name);
-	
-	return false;
-}
-
-int Hierarchy::recursive_num_employees(const Node* node, size_t count) const
-{
-	if (!node)
-		return 0;
-
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_num_employees(node->children[i], count++);
-
-	return count;
 }
 
 int Hierarchy::recursive_num_overloaded(const Node* node, int level, size_t count, size_t num) const
@@ -122,37 +89,6 @@ int Hierarchy::recursive_num_overloaded(const Node* node, int level, size_t coun
 		this->recursive_num_overloaded(node->children[i], level, current_count++, num);
 
 	return num;
-}
-
-string Hierarchy::recursive_manager(const Node* node, const string& name) const
-{
-	if (!node)
-		return "";
-
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		if (node->children[i]->value == name)
-			return node->value;
-
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_manager(node->children[i], name);
-
-	return "";
-}
-
-int Hierarchy::recursive_sub_ordinates(const Node* node, const string& name) const
-{
-	if (!node)
-		return 0;
-
-	if (node->value == name)
-		return node->children.get_size();
-
-	size_t number_of_employees = node->children.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_sub_ordinates(node->children[i], name);
-
-	return 0;
 }
 
 unsigned long Hierarchy::recursive_getSalary(const Node* node, const string& who, unsigned long salary) const
@@ -206,18 +142,16 @@ bool Hierarchy::recursive_fire(Node* node, const string& who)
 	return false;
 }
 
-Node* Hierarchy::find_employee(Node* node, const string& name) const
+Node* Hierarchy::find_employee(const string& name) const
 {
-	if (!node)
-		return nullptr;
+	if ("Uspeshnia" == name)
+		return this->root;
 
-	if (node->value == name)
-		return node;
-
-	size_t number_of_employees = node->children.get_size();
+	size_t number_of_employees = this->employees.get_size();
 	for (size_t i = 0; i < number_of_employees; i++)
-		this->find_employee(node->children[i], name);
-
+		if (this->employees[i]->value == name)
+			return this->employees[i];
+	
 	return nullptr;
 }
 
@@ -236,8 +170,8 @@ bool Hierarchy::recursive_hire(Node* node, const string& who, const string& boss
 		else
 		{
 			Node* cpy = new Node(who);
-			cpy = this->copy(this->find_employee(this->root, who));
-			this->erase(this->find_employee(this->root, who)); // bez pop
+			//cpy = this->copy(this->find_employee(this->root, who));
+			//this->erase(this->find_employee(this->root, who)); // bez pop
 			node->children.push_back(cpy);
 		}
 		return true;
@@ -399,7 +333,7 @@ void Hierarchy::recursive_modernize(Node* node, size_t level)
 	}
 }
 
-void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses, Vector<string>& employees)
+void Hierarchy::get_data_from_string(const string& data)
 {
 	size_t length = data.size();
 	string boss{}, employee{};
@@ -409,8 +343,8 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 		flag = false;
 		if (data[i] == '-')
 		{
-			std::cout << "Incorrect Input!" << std::endl;
 			this->erase(this->root);
+			this->root = nullptr;
 			return;
 		}
 
@@ -425,12 +359,15 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 				if (data[j] == ' ')
 					continue;
 
+				if (data[j] != ' ' && data[j] != '-')
+					break;
+
 				if (data[j] == '-')
 				{
 					if (j + 1 >= length)
 					{
-						std::cout << "Incorrect Input!" << std::endl;
 						this->erase(this->root);
+						this->root = nullptr;
 						return;
 					}
 
@@ -438,8 +375,8 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 					{
 						if (data[k] == '-')
 						{
-							std::cout << "Incorrect Input!" << std::endl;
 							this->erase(this->root);
+							this->root = nullptr;
 							return;
 						}
 
@@ -449,8 +386,8 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 						employee += data[k];
 						if (k + 1 > length || data[k + 1] == '-')
 						{
-							std::cout << "Incorrect Input!" << std::endl;
 							this->erase(this->root);
+							this->root = nullptr;
 							return;
 						}
 
@@ -459,8 +396,10 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 							flag = true;
 							i = k;
 							j = length - 1;
-							bosses.push_back(boss);
-							employees.push_back(employee);
+							Node* temp1 = new Node(boss);
+							Node* temp2 = new Node(employee);
+							this->bosses.push_back(temp1);
+							this->employees.push_back(temp2);
 							boss.clear();
 							employee.clear();
 							break;
@@ -471,8 +410,10 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 							flag = true;
 							i = k;
 							j = length - 1;
-							bosses.push_back(boss);
-							employees.push_back(employee);
+							Node* temp1 = new Node(boss);
+							Node* temp2 = new Node(employee);
+							this->bosses.push_back(temp1);
+							this->employees.push_back(temp2);
 							boss.clear();
 							employee.clear();
 							break;
@@ -482,57 +423,70 @@ void Hierarchy::get_data_from_string(const string& data, Vector<string>& bosses,
 			}
 			if (!flag)
 			{
-				std::cout << "Incorrect Input!" << std::endl;
 				this->erase(this->root);
+				this->root = nullptr;
 				return;
 			}
 		}
 	}
 }
 
-void Hierarchy::make_relationships(Node* node, Vector<string>& bosses, Vector<string>& employees)
+void Hierarchy::make_relationships(Node* node)
 {
 	if (!node)
+	{
+		std::cout << "Incorrect Input!" << std::endl;
+		this->erase(this->root);
+		this->root = nullptr;
 		return;
+	}
 
-	size_t relationships = bosses.get_size();
+	size_t relationships = this->bosses.get_size();
 	for (size_t i = 0; i < relationships; i++)
 	{
-		if (node->value == bosses[i])
+		if (node->value == this->bosses[i]->value)
 		{
-			Node* temp = new Node(employees[i]);
+			Node* temp = new Node(this->employees[i]->value);
 			node->children.push_back(temp);
 		}
 	}
 
 	size_t number_of_employees = node->children.get_size();
 	for (size_t i = 0; i < number_of_employees; i++)
-		this->make_relationships(node->children[i], bosses, employees);
+		this->make_relationships(node->children[i]);
 }
 
 void Hierarchy::fill_hierarchy(const string& data)
 {
-	Vector<string> bosses{};
-	Vector<string> employees{};
-	this->get_data_from_string(data, bosses, employees);
-	if (bosses.get_size() != employees.get_size() || bosses[0] != "Uspeshnia")
+	if (!this->root)
 	{
 		std::cout << "Incorrect Input!" << std::endl;
 		this->erase(this->root);
+		this->root = nullptr;
 		return;
 	}
-	size_t relationships = bosses.get_size();
-	this->size = bosses.get_size() + 1;
+
+	this->get_data_from_string(data);
+	if (this->bosses.get_size() != this->employees.get_size() || this->bosses[0]->value != "Uspeshnia")
+	{
+		std::cout << "Incorrect Input!" << std::endl;
+		this->erase(this->root);
+		this->root = nullptr;
+		return;
+	}
+	size_t relationships = this->bosses.get_size();
+	this->size = this->bosses.get_size() + 1;
 	for (size_t i = 0; i < relationships; i++)
 	{
-		if (bosses[i] != bosses[i + 1])
+		if (this->bosses[i]->value != this->bosses[i + 1]->value)
 		{
 			for (size_t j = i + 1; j < relationships; j++)
 			{
-				if (bosses[i] == bosses[j])
+				if (this->bosses[i]->value == this->bosses[j]->value)
 				{
 					std::cout << "Incorrect Input!" << std::endl;
 					this->erase(this->root);
+					this->root = nullptr;
 					return;
 				}
 			}
@@ -540,21 +494,32 @@ void Hierarchy::fill_hierarchy(const string& data)
 
 		for (size_t j = i + 1; j < relationships; j++)
 		{
-			if (employees[i] == employees[j])
+			if (this->employees[i]->value == this->employees[j]->value)
 			{
 				std::cout << "Incorrect Input!" << std::endl;
 				this->erase(this->root);
+				this->root = nullptr;
 				return;
 			}
 		}
 	}
 
-	this->make_relationships(this->root, bosses, employees);
+	this->make_relationships(this->root);
 }
 
 string Hierarchy::print() const
 {
-	return this->recursive_print(this->root);
+	string list{};
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		list += this->bosses[i]->value;
+		list += " - ";
+		list += this->employees[i]->value;
+		list += "\n";
+	}
+
+	return list;
 }
 
 int Hierarchy::longest_chain() const
@@ -564,12 +529,20 @@ int Hierarchy::longest_chain() const
 
 bool Hierarchy::find(const string& name) const
 {
-	return this->recursive_find(this->root, name);
+	if (name == "Uspeshnia")
+		return true;
+
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		if (this->employees[i]->value == name)
+			return true;
+
+	return false;
 }
 
 int Hierarchy::num_employees() const
 {
-	return this->recursive_num_employees(this->root, 0);
+	return this->employees.get_size();
 }
 
 int Hierarchy::num_overloaded(int level) const
@@ -579,17 +552,67 @@ int Hierarchy::num_overloaded(int level) const
 
 string Hierarchy::manager(const string& name) const
 {
-	return this->recursive_manager(this->root, name);
+	if (name == "Uspeshnia")
+		return "";
+
+	for (size_t i = 0; i < this->employees.get_size(); i++)
+		if (this->employees[i]->value == name)
+			return this->bosses[i]->value;
+
+	return "";
 }
 
 int Hierarchy::num_subordinates(const string& name) const
 {
-	return this->recursive_sub_ordinates(this->root, name);
+	size_t count{};
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		if (this->bosses[i]->value == name)
+			count++;
+
+	return count;
 }
 
 unsigned long Hierarchy::getSalary(const string& who) const
 {
-	return this->recursive_getSalary(this->root, who, 0);
+	unsigned long salary{};
+	size_t count{};
+	Vector<Node*> employee_bosses{};
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->bosses[i]->value == who)
+		{
+			salary += 500;
+			for (size_t j = 0; j < number_of_employees; j++)
+			{
+				if (this->employees[i]->value == this->bosses[j]->value)
+				{
+					count++;
+					employee_bosses.push_back(this->employees[j]);
+					std::cout << this->employees[j]->value << ", ";
+				}
+			}
+		}
+	}
+
+	std::cout << std::endl;
+	size_t size_employee_bosses = employee_bosses.get_size();
+	for (size_t i = 0; i < size_employee_bosses; i++)
+		std::cout << employee_bosses[i]->value << std::endl;
+
+	for (size_t i = 0; i < size_employee_bosses; i++)
+	{
+		for (size_t j = 0; j < number_of_employees; j++)
+		{
+			if (employee_bosses[i]->value == this->bosses[j]->value)
+			{
+				std::cout << employee_bosses[i]->value << " - " << this->bosses[j]->value << std::endl;
+				salary += 50;
+			}
+		}
+	}
+	return salary + count * 50;
 }
 
 bool Hierarchy::fire(const string& who)
@@ -614,7 +637,18 @@ void Hierarchy::modernize()
 
 int main()
 {
-	Hierarchy a("Uspeshnia-Gosho\nUspeshnia-Misho\nUspeshnia-Slavi\nGosho-Dancho\nGosho-Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	a.print();
+	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
+	std::cout << a.print();
+	std::cout << std::endl;
+	if (a.find("Slavi1"))
+		std::cout << "yes";
+	else
+		std::cout << "no";
+	std::cout << std::endl;
+	std::cout << a.num_employees() << std::endl;
+	std::cout << a.manager("Mecho") << std::endl;
+	std::cout << a.num_subordinates("Slavi") << std::endl;
+	std::cout << a.getSalary("Uspeshnia") << std::endl;
+	//std::cout << a.longest_chain() << std::endl;
 	return 0;
 }
