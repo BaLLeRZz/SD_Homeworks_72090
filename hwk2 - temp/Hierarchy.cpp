@@ -91,57 +91,6 @@ int Hierarchy::recursive_num_overloaded(const Node* node, int level, size_t coun
 	return num;
 }
 
-unsigned long Hierarchy::recursive_getSalary(const Node* node, const string& who, unsigned long salary) const
-{
-	if (!node)
-		return 0;
-
-	if (node->value == who)
-	{
-		size_t number_of_employees = node->children.get_size();
-		for (size_t i = 0; i < number_of_employees; i++)
-			this->recursive_getSalary(node->children[i], who, salary += 50);
-
-		return 500 * node->children.get_size() + salary;
-	}
-	else
-	{
-		size_t number_of_employees = node->children.get_size();
-		for (size_t i = 0; i < number_of_employees; i++)
-			this->recursive_getSalary(node->children[i], who, salary);
-	}
-
-	return salary;
-}
-
-bool Hierarchy::recursive_fire(Node* node, const string& who)
-{
-	if (!node)
-		return false;
-
-	size_t number_of_employees = node->children.get_size();
-	for(size_t i = 0; i < number_of_employees; i++)
-	{ 
-		if (node->children[i]->value == who)
-		{
-			Node* cpy = new Node(node->children[i]->value);
-			cpy = this->copy(node->children[i]);
-			this->erase(node->children[i]);
-			//node->children.pop_at(i);
-			size_t number_of_employees_cpy = cpy->children.get_size();
-			for (size_t j = 0; j < number_of_employees_cpy; j++)
-				node->children.push_at(i++, cpy->children[j]);
-			
-			return true;
-		}
-	}
-
-	for (size_t i = 0; i < number_of_employees; i++)
-		this->recursive_fire(node->children[i], who);
-
-	return false;
-}
-
 Node* Hierarchy::find_employee(const string& name) const
 {
 	if ("Uspeshnia" == name)
@@ -576,6 +525,9 @@ int Hierarchy::num_subordinates(const string& name) const
 unsigned long Hierarchy::getSalary(const string& who) const
 {
 	unsigned long salary{};
+	if (who == "Uspeshnia")
+		salary += 50;
+
 	size_t count{};
 	Vector<Node*> employee_bosses{};
 	size_t number_of_employees = this->employees.get_size();
@@ -590,34 +542,40 @@ unsigned long Hierarchy::getSalary(const string& who) const
 				{
 					count++;
 					employee_bosses.push_back(this->employees[j]);
-					std::cout << this->employees[j]->value << ", ";
 				}
 			}
 		}
 	}
 
-	std::cout << std::endl;
 	size_t size_employee_bosses = employee_bosses.get_size();
 	for (size_t i = 0; i < size_employee_bosses; i++)
-		std::cout << employee_bosses[i]->value << std::endl;
-
-	for (size_t i = 0; i < size_employee_bosses; i++)
-	{
 		for (size_t j = 0; j < number_of_employees; j++)
-		{
 			if (employee_bosses[i]->value == this->bosses[j]->value)
-			{
-				std::cout << employee_bosses[i]->value << " - " << this->bosses[j]->value << std::endl;
 				salary += 50;
-			}
-		}
-	}
+
 	return salary + count * 50;
 }
 
 bool Hierarchy::fire(const string& who)
 {
-	return this->recursive_fire(this->root, who);
+	if (who == "Uspeshnia")
+		return false;
+
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->employees[i]->value == who)
+		{
+			for (size_t j = i; j < number_of_employees; j++)
+				if (this->bosses[j]->value == who)
+					this->bosses[j]->value = this->bosses[i]->value;
+
+			this->bosses.pop_at(i);
+			this->employees.pop_at(i);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Hierarchy::hire(const string& who, const string& boss)
@@ -638,8 +596,7 @@ void Hierarchy::modernize()
 int main()
 {
 	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	std::cout << a.print();
-	std::cout << std::endl;
+	std::cout << a.print() << std::endl;
 	if (a.find("Slavi1"))
 		std::cout << "yes";
 	else
@@ -649,6 +606,12 @@ int main()
 	std::cout << a.manager("Mecho") << std::endl;
 	std::cout << a.num_subordinates("Slavi") << std::endl;
 	std::cout << a.getSalary("Uspeshnia") << std::endl;
+	if (a.fire("Slav1"))
+		std::cout << "Slav1 was fired" << std::endl;
+	else
+		std::cout << "Something went wrong" << std::endl;
+	
+	//a.fire("Kamen");
 	//std::cout << a.longest_chain() << std::endl;
 	return 0;
 }

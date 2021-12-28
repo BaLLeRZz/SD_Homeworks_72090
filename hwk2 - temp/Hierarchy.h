@@ -25,8 +25,6 @@ private:
     void erase(Node* current_root);
     int recursive_longest_chain(Node* node, size_t count, size_t current_count) const;
     int recursive_num_overloaded(const Node* node, int level, size_t count, size_t num) const;
-    unsigned long recursive_getSalary(const Node* node, const string& who, unsigned long salary) const;
-    bool recursive_fire(Node* node, const string& who);
     Node* find_employee(const string& name) const;
     bool recursive_hire(Node* node, const string& who, const string& boss);
     Node* find_max_salary_employee(const Node* node);
@@ -51,9 +49,9 @@ public:
 
     string manager(const string& name) const; // raboti
     int num_subordinates(const string& name) const; // raboti
-    unsigned long getSalary(const string& who) const;
+    unsigned long getSalary(const string& who) const; // raboti
 
-    bool fire(const string& who);
+    bool fire(const string& who); // raboti
     bool hire(const string& who, const string& boss);
 
     void incorporate();
