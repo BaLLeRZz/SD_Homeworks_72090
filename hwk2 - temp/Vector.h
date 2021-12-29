@@ -158,7 +158,8 @@ void Vector<T>::pop_at(const size_t& index)
 
 	T* temp = new T[this->size - 1];
 	for (size_t i = index; i < this->size; i++)
-		this->vector[i] = this->vector[i + 1];
+		if (i + 1 < this->size)
+			this->vector[i] = this->vector[i + 1];
 
 	for (size_t i = 0; i < this->size - 1; i++)
 		temp[i] = this->vector[i];

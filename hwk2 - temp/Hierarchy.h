@@ -38,8 +38,8 @@ public:
     bool fire(const string& who); // raboti
     bool hire(const string& who, const string& boss); // raboti
 
-    void incorporate();
-    void modernize();
+    void incorporate(); // raboti
+    void modernize(); // raboti
 
     //Hierarchy join(const Hierarchy& right) const;
 };
