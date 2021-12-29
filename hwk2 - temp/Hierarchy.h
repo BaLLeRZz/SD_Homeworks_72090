@@ -31,7 +31,7 @@ public:
 
     string manager(const string& name) const; // raboti
     int num_subordinates(const string& name) const; // raboti
-    unsigned long getSalary(const string& who) const; // raboti (optimizirai sluchaq za uspeshnia)
+    unsigned long getSalary(const string& who) const; // raboti 
 
     bool fire(const string& who); // raboti
     bool hire(const string& who, const string& boss);
