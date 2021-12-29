@@ -211,6 +211,25 @@ void Hierarchy::hire_helper(const string& who, const string& boss)
 	}
 }
 
+void Hierarchy::fix_list()
+{
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->bosses[i] != this->bosses[i + 1])
+		{
+			for (size_t j = i + 1; j < number_of_employees; j++)
+			{
+				if (this->bosses[i] == this->bosses[j])
+				{
+					std::swap(this->bosses[++i], this->bosses[j]);
+					std::swap(this->employees[i], this->employees[j]);
+				}
+			}
+		}
+	}
+}
+
 string Hierarchy::print() const
 {
 	string list{};
@@ -418,21 +437,7 @@ bool Hierarchy::fire(const string& who)
 		}
 	}
 
-	number_of_employees = this->employees.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-	{
-		if (this->bosses[i] != this->bosses[i + 1])
-		{
-			for (size_t j = i + 1; j < number_of_employees; j++)
-			{
-				if (this->bosses[i] == this->bosses[j])
-				{
-					std::swap(this->bosses[++i], this->bosses[j]);
-					std::swap(this->employees[i], this->employees[j]);
-				}
-			}
-		}
-	}
+	this->fix_list();
 
 	return true;
 }
@@ -476,6 +481,59 @@ bool Hierarchy::hire(const string& who, const string& boss)
 	return false;
 }
 
+void Hierarchy::incorporate()
+{
+	unsigned long max_salary{};
+	string max_salary_employee{};
+	unsigned long salary{};
+	Vector<string> helper{};
+	size_t helper_size{};
+	int number_of_employees = this->employees.get_size();
+	for (int i = number_of_employees - 1; i >= 0; i--)
+	{
+		if (this->bosses[i] == this->bosses[i - 1])
+		{
+			for (int j = i - 1; j >= 0; j--)
+			{
+				if (this->bosses[j] == this->bosses[i])
+					helper.push_back(this->employees[j]);
+				else
+					break;
+			}
+
+			helper_size = helper.get_size();
+			for (size_t j = 0; j < helper_size; j++)
+			{
+				if (j == 0)
+					max_salary_employee = helper[i];
+
+				salary = this->getSalary(helper[i]);
+				if (max_salary == salary)
+				{
+					if (max_salary_employee > helper[i])
+						max_salary_employee = helper[i];
+
+				}
+				else
+				if (max_salary < salary)
+				{
+					max_salary = salary;
+					max_salary_employee = helper[i];
+				}
+			}
+			
+			for (int j = 0; j < number_of_employees; j++)
+				if (this->bosses[j] == this->bosses[i] && this->employees[j] != max_salary_employee)
+					this->bosses[j] = max_salary_employee;
+			
+			max_salary = 0;
+			max_salary_employee = "";
+			helper.clear();
+		}
+	}
+	this->fix_list();
+}
+
 int main()
 { // Boris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\n
 	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
@@ -491,6 +549,8 @@ int main()
 	std::cout << b.num_subordinates("Slavi") << std::endl;
 	std::cout << b.getSalary("Uspeshnia") << std::endl;
 	std::cout << b.longest_chain() << std::endl;
+	b.incorporate();
+	std::cout << b.print() << std::endl;
 	/*if (b.hire("Gosho", "Slavi"))
 		std::cout << "yes" << std::endl;
 	else
