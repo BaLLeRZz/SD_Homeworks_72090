@@ -15,9 +15,10 @@ private:
     void erase();
     void get_data_from_string(const string& data);
     void fill_hierarchy(const string& data);
+    void hire_helper(const string& who, const string& boss);
 public:
     Hierarchy(Hierarchy&& r) noexcept; // raboti
-    Hierarchy(const Hierarchy& r);
+    Hierarchy(const Hierarchy& r); // raboti
     Hierarchy(const string& data); // raboti
     ~Hierarchy() noexcept; // raboti
     void operator=(const Hierarchy&) = delete; // raboti
@@ -34,7 +35,7 @@ public:
     unsigned long getSalary(const string& who) const; // raboti 
 
     bool fire(const string& who); // raboti
-    bool hire(const string& who, const string& boss);
+    bool hire(const string& who, const string& boss); // raboti
 
     void incorporate();
     void modernize();

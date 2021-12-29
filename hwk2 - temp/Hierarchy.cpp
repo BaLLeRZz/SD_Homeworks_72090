@@ -165,6 +165,52 @@ void Hierarchy::fill_hierarchy(const string& data)
 	}
 }
 
+void Hierarchy::hire_helper(const string& who, const string& boss)
+{
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->bosses[i] == boss && this->bosses[i + 1] != boss)
+		{
+			this->bosses.push_at(i + 1, boss);
+			this->employees.push_at(i + 1, who);
+			return;
+		}
+	}
+
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->employees[i] == boss)
+		{
+			for (size_t j = 0; j < number_of_employees; j++)
+			{
+				if (this->employees[i - 1] == this->bosses[j])
+				{
+					for (size_t k = j; k < number_of_employees; k++)
+					{
+						if (this->bosses[k] != this->bosses[j])
+						{
+							this->bosses.push_at(k, boss);
+							this->employees.push_at(k, who);
+							return;
+						}
+					}
+				}
+			}
+
+			for (size_t j = i; j < number_of_employees; j++)
+			{
+				if (this->bosses[j] != this->bosses[i])
+				{
+					this->bosses.push_at(j, boss);
+					this->employees.push_at(j, who);
+					return;
+				}
+			}
+		}
+	}
+}
+
 string Hierarchy::print() const
 {
 	string list{};
@@ -271,10 +317,10 @@ int Hierarchy::num_overloaded(int level) const
 string Hierarchy::manager(const string& name) const
 {
 	if (name == "Uspeshnia")
-		return "Uspeshnia has no managers.";
+		return "";
 
 	if (!this->find(name))
-		return name + " was not found in this hierarchy.";
+		return "";
 
 	for (size_t i = 0; i < this->employees.get_size(); i++)
 		if (this->employees[i] == name)
@@ -286,10 +332,7 @@ string Hierarchy::manager(const string& name) const
 int Hierarchy::num_subordinates(const string& name) const
 {
 	if (!this->find(name))
-	{
-		std::cout << name + " was not found in this hierarchy." << std::endl;
 		return -1;
-	}
 
 	size_t count{};
 	size_t number_of_employees = this->employees.get_size();
@@ -303,10 +346,7 @@ int Hierarchy::num_subordinates(const string& name) const
 unsigned long Hierarchy::getSalary(const string& who) const
 {
 	if (!this->find(who))
-	{
-		std::cout << who + " was not found in this hierarchy." << std::endl;
 		return 0;
-	}
 
 	unsigned long salary{};
 	size_t count{};
@@ -352,16 +392,10 @@ unsigned long Hierarchy::getSalary(const string& who) const
 bool Hierarchy::fire(const string& who)
 {
 	if (who == "Uspeshnia")
-	{
-		std::cout << who + " cannot be fired!" << std::endl;
 		return false;
-	}
 
 	if (!this->find(who))
-	{
-		std::cout << who + " was not found in this hierarchy." << std::endl;
 		return false;
-	}
 
 	size_t index{};
 	bool has_employees = false; 
@@ -406,10 +440,10 @@ bool Hierarchy::fire(const string& who)
 bool Hierarchy::hire(const string& who, const string& boss)
 {
 	if (!this->find(boss))
-	{
-		std::cout << boss + " was not found in this hierarchy." << std::endl;
 		return false;
-	}
+
+	if (who == "Uspeshnia")
+		return false;
 
 	size_t number_of_employees = this->employees.get_size();
 	if (!this->find(who))
@@ -420,11 +454,24 @@ bool Hierarchy::hire(const string& who, const string& boss)
 			{
 				this->bosses.push_at(i + 1, boss);
 				this->employees.push_at(i + 1, who);
+				return true;
 			}
 		}
+		this->hire_helper(who, boss);
 		return true;
 	}
 
+	this->hire_helper(who, boss);
+	number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		if (this->employees[i] == who && this->bosses[i] != boss)
+		{
+			this->bosses.pop_at(i);
+			this->employees.pop_at(i);
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -432,23 +479,29 @@ bool Hierarchy::hire(const string& who, const string& boss)
 int main()
 { // Boris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\n
 	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	std::cout << a.print() << std::endl;
-	if (a.find("Slavi1"))
+	Hierarchy b(a);
+	std::cout << b.print() << std::endl;
+	if (b.find("Slavi1"))
 		std::cout << "yes";
 	else
 		std::cout << "no";
 	std::cout << std::endl;
-	std::cout << a.num_employees() << std::endl;
-	std::cout << a.manager("Mecho") << std::endl;
-	std::cout << a.num_subordinates("Slavi") << std::endl;
-	std::cout << a.getSalary("Uspeshnia") << std::endl;
-	std::cout << a.longest_chain() << std::endl;
-	//std::cout << a.num_overloaded() << std::endl;
-	if (a.fire("Dancho"))
+	std::cout << b.num_employees() << std::endl;
+	std::cout << b.manager("Mecho") << std::endl;
+	std::cout << b.num_subordinates("Slavi") << std::endl;
+	std::cout << b.getSalary("Uspeshnia") << std::endl;
+	std::cout << b.longest_chain() << std::endl;
+	/*if (b.hire("Gosho", "Slavi"))
 		std::cout << "yes" << std::endl;
 	else
 		std::cout << "no" << std::endl;
-	std::cout << a.print();
+	std::cout << b.print() << std::endl;*/
+	//std::cout << b.num_overloaded() << std::endl;
+	/*if (b.fire("Dancho"))
+		std::cout << "yes" << std::endl;
+	else
+		std::cout << "no" << std::endl;
+	std::cout << b.print();*/
 
 	return 0;
 }
