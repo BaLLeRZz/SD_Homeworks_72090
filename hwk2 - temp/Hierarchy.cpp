@@ -180,6 +180,47 @@ string Hierarchy::print() const
 	return list;
 }
 
+int Hierarchy::longest_chain() const
+{
+	int max_chain = -1;
+	int count = 2;
+	Vector<string> employee_bosses{};
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+		if (this->bosses[i] == "Uspeshnia")
+			employee_bosses.push_back(this->employees[i]);
+	
+	size_t index{};
+	size_t size_employee_bosses = employee_bosses.get_size();
+	for (size_t k = 0; k < size_employee_bosses; k++)
+	{
+		for (size_t i = 0; i < number_of_employees; i++)
+		{
+			if (this->bosses[i] == employee_bosses[k])
+			{
+				index = i;
+				count++;
+				for (size_t j = i; j < number_of_employees; j++)
+				{
+					if (this->employees[i] == this->bosses[j])
+					{
+						count++;
+						i = j;
+					}
+				}
+				if (max_chain < count)
+					max_chain = count;
+
+				count = 2;
+				i = index;
+			}
+		}
+	}
+
+	employee_bosses.clear();
+	return max_chain;
+}
+
 bool Hierarchy::find(const string& name) const
 {
 	if (name == "Uspeshnia")
@@ -196,6 +237,35 @@ bool Hierarchy::find(const string& name) const
 int Hierarchy::num_employees() const
 {
 	return this->employees.get_size();
+}
+
+int Hierarchy::num_overloaded(int level) const
+{
+	int num = 0;
+	int count = 0;
+	size_t index{};
+	size_t number_of_employees = this->employees.get_size();
+	for (size_t i = 0; i < number_of_employees; i++)
+	{
+		for (size_t j = i; j < number_of_employees; j++)
+		{
+			if (this->employees[i] == this->bosses[j])
+			{
+				index = j;
+				count++;
+				//std::cout << "Boss[" << j << "] : " << this->bosses[j] << std::endl;
+				for (size_t k = j; k < number_of_employees; k++)
+				{
+	
+				}
+			}
+		}
+	}
+
+	if (num++ > 0)
+		return num;
+
+	return num;
 }
 
 string Hierarchy::manager(const string& name) const
@@ -336,8 +406,8 @@ bool Hierarchy::hire(const string& who, const string& boss)
 }
 
 int main()
-{
-	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
+{ // Boris-Kosta1\n
+	Hierarchy a("      Uspeshnia-Gosho   \nUspeshnia -   Misho\nUspeshnia-  Slavi\nGosho-Dancho\nGosho -Pesho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nBoris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
 	std::cout << a.print() << std::endl;
 	if (a.find("Slavi1"))
 		std::cout << "yes";
@@ -348,11 +418,13 @@ int main()
 	std::cout << a.manager("Mecho") << std::endl;
 	std::cout << a.num_subordinates("Slavi") << std::endl;
 	std::cout << a.getSalary("Uspeshnia") << std::endl;
-	if (a.fire("Slav1"))
+	std::cout << a.longest_chain() << std::endl;
+	std::cout << a.num_overloaded() << std::endl;
+	/*if (a.fire("Slav1"))
 		std::cout << "yes" << std::endl;
 	else
 		std::cout << "no" << std::endl;
-	std::cout << a.print();
+	std::cout << a.print();*/
 
 	return 0;
 }

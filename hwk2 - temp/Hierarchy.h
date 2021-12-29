@@ -24,7 +24,7 @@ public:
 
     string print() const; // raboti
 
-    int longest_chain() const;
+    int longest_chain() const; // raboti
     bool find(const string& name) const; // raboti
     int num_employees() const; // raboti
     int num_overloaded(int level = 20) const;
