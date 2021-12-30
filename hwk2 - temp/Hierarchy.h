@@ -41,5 +41,5 @@ public:
     void incorporate(); // raboti
     void modernize(); // raboti
 
-    //Hierarchy join(const Hierarchy& right) const;
+    Hierarchy join(const Hierarchy& right) const;
 };
