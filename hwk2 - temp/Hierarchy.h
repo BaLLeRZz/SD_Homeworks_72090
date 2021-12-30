@@ -14,6 +14,7 @@ private:
     void erase();
     void get_data_from_string(const string& data);
     void fill_hierarchy(const string& data);
+    bool is_correct() const;
     void fix_list();
 public:
     Hierarchy(Hierarchy&& r) noexcept; // raboti
