@@ -28,7 +28,7 @@ public:
     int longest_chain() const; // raboti
     bool find(const string& name) const; // raboti
     int num_employees() const; // raboti
-    int num_overloaded(int level = 20) const;
+    int num_overloaded(int level = 20) const; // raboti
 
     string manager(const string& name) const; // raboti
     int num_subordinates(const string& name) const; // raboti

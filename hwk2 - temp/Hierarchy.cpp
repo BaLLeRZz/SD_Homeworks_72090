@@ -46,6 +46,7 @@ void Hierarchy::get_data_from_string(const string& data)
 		if (data[i] == '-')
 		{
 			this->erase();
+			//throw std::logic_error("Incorrect Input!");
 			return;
 		}
 
@@ -61,7 +62,7 @@ void Hierarchy::get_data_from_string(const string& data)
 					continue;
 
 				if (data[j] != ' ' && data[j] != '-')
-					break;
+					return;
 
 				if (data[j] == '-')
 				{
@@ -130,7 +131,7 @@ void Hierarchy::fill_hierarchy(const string& data)
 	this->fix_list();
 	if (!this->is_correct())
 	{
-		std::cout << "Incorrect Input!" << std::endl;
+		//throw std::logic_error("Incorrect Input!");
 		this->erase();
 		return;
 	}
@@ -138,10 +139,7 @@ void Hierarchy::fill_hierarchy(const string& data)
 
 bool Hierarchy::is_correct() const
 {
-	if (this->bosses.get_size() != this->employees.get_size() || this->bosses[0] != "Uspeshnia")
-		return false;
-
-	if (this->bosses[0] != "Uspeshnia")
+	if (this->bosses.get_size() != this->employees.get_size())
 		return false;
 
 	size_t relationships = this->bosses.get_size();
@@ -570,34 +568,70 @@ void Hierarchy::modernize()
 	this->fix_list();
 }
 
-//Hierarchy Hierarchy::join(const Hierarchy& right) const
-//{
-//	Vector<string> helper_bosses = this->bosses;
-//	Vector<string> helper_employees = this->employees;
-//	size_t right_size = right.employees.get_size();
-//	for (size_t i = 0; i < right_size; i++)
-//	{
-//		if (helper_bosses[i] != right.bosses[i] && helper_employees[i] != right.employees[i])
-//		{
-//			helper_bosses.push_back(right.bosses[i]);
-//			helper_employees.push_back(right.employees[i]);
-//		}
-//	}
-//
-//	size_t combined_hierarchy_size = helper_employees.get_size();
-//	for (size_t i = 0; i < combined_hierarchy_size; i++)
-//		for (size_t j = 0; j < combined_hierarchy_size; j++)
-//			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
-//				return Hierarchy("");
-//
-//	for (size_t i = 0; i < combined_hierarchy_size; i++)
-//	{
-//		for (size_t j = 0; j < combined_hierarchy_size; j++)
-//		{
-//
-//		}
-//	}
-//}
+Hierarchy Hierarchy::join(const Hierarchy& right) const
+{
+	Vector<string> helper_bosses = this->bosses;
+	Vector<string> helper_employees = this->employees;
+	size_t right_size = right.employees.get_size();
+	for (size_t i = 0; i < right_size; i++)
+	{
+		//if (helper_bosses[i] != right.bosses[i] && helper_employees[i] != right.employees[i])
+		//{
+			helper_bosses.push_back(right.bosses[i]);
+			helper_employees.push_back(right.employees[i]);
+		//}
+	}
+
+	size_t combined_hierarchy_size = helper_employees.get_size();
+	for (size_t i = 0; i < combined_hierarchy_size; i++)
+		for (size_t j = 0; j < combined_hierarchy_size; j++)
+			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
+				return Hierarchy("");
+
+	Vector<string> helper{};
+	size_t helper_size{};
+	size_t index{};
+	for (size_t i = 0; i < combined_hierarchy_size; i++)
+	{
+		for (size_t j = 0; j < combined_hierarchy_size; j++)
+		{
+			if (helper_employees[i] == helper_bosses[j])
+			{
+				helper.push_back(helper_employees[j]);
+				index = j;
+				for (size_t k = 0; k < combined_hierarchy_size; k++)
+				{
+					if (helper_employees[j] == helper_bosses[k])
+					{
+						helper.push_back(helper_employees[k]);
+						j = k;
+					}
+				}
+
+				j = index;
+				helper.push_front(helper_employees[i]);
+				helper_size = helper.get_size();
+				//for (size_t k = 0; k < helper_size; k++)
+					//for (size_t m = k + 1; m < helper_size; m++)
+						//if (helper[i] == helper[m])
+							//return Hierarchy("");
+
+				helper.clear();
+			}
+		}
+	}
+
+	string list{};
+	for (size_t i = 0; i < combined_hierarchy_size; i++)
+	{
+		list += helper_bosses[i];
+		list += "-";
+		list += helper_employees[i];
+		list += "\n";
+	}
+
+	return Hierarchy(list);
+}
 const string loz_new = "Uspeshnia-MishoPetrov\nMishoPetrov-Misho\nMishoPetrov-Slav\n";
 const string lozenec =
 "Uspeshnia - Gosho \n"
@@ -621,11 +655,20 @@ const string large =
 
 int main()
 { // Boris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\n
-	Hierarchy a("      Uspeshnia-Misho   \nUspeshnia -   Gosho\nUspeshnia-  Slavi\nGosho-Pesho\nGosho -Dancho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	Hierarchy b(large);
-	std::cout << b.print() << std::endl;
-	std::cout << b.num_overloaded() << std::endl;
+	//Hierarchy a("      Uspeshnia-Misho   \nUspeshnia -   Gosho\nUspeshnia-  Slavi\nGosho-Pesho\nGosho -Dancho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
+	//Hierarchy b(a);
 	//std::cout << b.print() << std::endl;
-	
+	//std::cout << b.longest_chain() << std::endl;
+	//std::cout << b.print() << std::endl;
+	/*int a = 2, b = 3;
+	if (a < b)
+		throw std::logic_error("Incorrect Input!");*/
+
+	Hierarchy a("Uspeshnia-Maikati\nUspeshnia-Bashtati\nMaikati-Batkoti\n");
+	Hierarchy b("Uspeshnia-Lelqti\n");
+	Hierarchy c = a.join(b);
+	std::cout << a.print() << std::endl;
+	std::cout << b.print() << std::endl;
+	std::cout << c.print() << std::endl;
 	return 0;
 }
