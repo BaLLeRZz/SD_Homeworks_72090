@@ -4,7 +4,6 @@ void Hierarchy::copy(const Hierarchy& other)
 {
 	this->bosses = other.bosses;
 	this->employees = other.employees;
-	this->size = other.size;
 }
 
 void Hierarchy::erase()
@@ -17,10 +16,8 @@ Hierarchy::Hierarchy(Hierarchy&& r) noexcept
 {
 	this->bosses.clear();
 	this->employees.clear();
-	this->size = 0;
 	std::swap(this->bosses, r.bosses);
 	std::swap(this->employees, r.employees);
-	std::swap(this->size, r.size);
 }
 
 Hierarchy::Hierarchy(const Hierarchy& r)
@@ -137,7 +134,6 @@ void Hierarchy::fill_hierarchy(const string& data)
 		return;
 	}
 	size_t relationships = this->bosses.get_size();
-	this->size = this->bosses.get_size() + 1;
 	bool flag = false;
 	for (size_t i = 0; i < relationships; i++)
 	{
@@ -196,59 +192,6 @@ void Hierarchy::fill_hierarchy(const string& data)
 	this->fix_list();
 }
 
-void Hierarchy::hire_helper(const string& who, const string& boss)
-{
-	size_t number_of_employees = this->employees.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
-	{
-		if (this->bosses[i] == boss && this->bosses[i + 1] != boss)
-		{
-			this->bosses.push_at(i + 1, boss);
-			this->employees.push_at(i + 1, who);
-			return;
-		}
-	}
-
-	for (size_t i = 0; i < number_of_employees; i++)
-	{
-		if (this->employees[i] == boss)
-		{
-			for (size_t j = 0; j < number_of_employees; j++)
-			{
-				if (this->employees[i - 1] == this->bosses[j])
-				{
-					for (size_t k = j; k < number_of_employees; k++)
-					{
-						if (this->bosses[k] != this->bosses[j])
-						{
-							this->bosses.push_at(k, boss);
-							this->employees.push_at(k, who);
-							return;
-						}
-
-						if (k + 1 >= number_of_employees)
-						{
-							this->bosses.push_back(boss);
-							this->employees.push_back(who);
-							return;
-						}
-					}
-				}
-			}
-
-			for (size_t j = i; j < number_of_employees; j++)
-			{
-				if (this->bosses[j] != this->bosses[i])
-				{
-					this->bosses.push_at(j, boss);
-					this->employees.push_at(j, who);
-					return;
-				}
-			}
-		}
-	}
-}
-
 void Hierarchy::fix_list()
 {
 	size_t number_of_employees = this->employees.get_size();
@@ -285,7 +228,7 @@ void Hierarchy::fix_list()
 	
 	for (size_t i = 0; i < number_of_employees; i++)
 	{
-		for (size_t j = i; j < number_of_employees; j++)
+		for (size_t j = 0; j < number_of_employees; j++)
 		{
 			if (this->employees[i] == this->bosses[j])
 			{
@@ -322,52 +265,39 @@ int Hierarchy::longest_chain() const
 		return 0;
 
 	int max_chain = 1;
-	int count = 1;
-	Vector<string> employee_bosses{};
+	Vector<string> chains{};
+	size_t index{};
 	size_t number_of_employees = this->employees.get_size();
 	for (size_t i = 0; i < number_of_employees; i++)
-		if (this->bosses[i] == "Uspeshnia")
-			employee_bosses.push_back(this->employees[i]);
-
-	size_t index{};
-	size_t size_employee_bosses = employee_bosses.get_size();
-	bool is_boss = false;
-	for (size_t k = 0; k < size_employee_bosses; k++)
 	{
-		is_boss = false;
-		for (size_t i = 0; i < number_of_employees; i++)
+		for (size_t j = 0; j < number_of_employees; j++)
 		{
-			if (this->bosses[i] == employee_bosses[k])
+			if (this->employees[i] == this->bosses[j])
 			{
-				is_boss = true;
-				index = i;
-				count++;
-				for (size_t j = i; j < number_of_employees; j++)
+				chains.push_back(this->employees[j]);
+				index = j;
+				for (size_t k = 0; k < number_of_employees; k++)
 				{
-					if (this->employees[i] == this->bosses[j])
+					if (this->employees[j] == this->bosses[k])
 					{
-						count++;
-						i = j;
+						chains.push_back(this->employees[k]);
+						j = k;
 					}
 				}
-				if (max_chain < count)
-					max_chain = count + 1;
 
-				count = 1;
-				i = index;
+				if (max_chain < chains.get_size() + 2)
+					max_chain = chains.get_size() + 2;
+
+				chains.clear();
+				j = index;
+				continue;
 			}
-		}
-		if (!is_boss)
-		{
-			count++;
-			if (max_chain < count)
-				max_chain = count;
 
-			count = 1;
+			if (max_chain < chains.get_size() + 2)
+				max_chain = chains.get_size() + 2;
 		}
 	}
 
-	employee_bosses.clear();
 	return max_chain;
 }
 
@@ -528,7 +458,6 @@ bool Hierarchy::fire(const string& who)
 	if (!this->find(who))
 		return false;
 
-	size_t index{};
 	size_t number_of_employees = this->employees.get_size();
 	for (size_t i = 0; i < number_of_employees; i++)
 	{
@@ -545,7 +474,6 @@ bool Hierarchy::fire(const string& who)
 	}
 
 	this->fix_list();
-
 	return true;
 }
 
@@ -557,16 +485,9 @@ bool Hierarchy::hire(const string& who, const string& boss)
 	if (who == "Uspeshnia")
 		return false;
 
+	this->bosses.push_back(boss);
+	this->employees.push_back(who);
 	size_t number_of_employees = this->employees.get_size();
-	if (!this->find(who))
-	{
-		this->hire_helper(who, boss);
-		this->fix_list();
-		return true;
-	}
-
-	this->hire_helper(who, boss);
-	number_of_employees = this->employees.get_size();
 	for (size_t i = 0; i < number_of_employees; i++)
 	{
 		if (this->employees[i] == who && this->bosses[i] != boss)
@@ -578,7 +499,8 @@ bool Hierarchy::hire(const string& who, const string& boss)
 		}
 	}
 
-	return false;
+	this->fix_list();
+	return true;
 }
 
 void Hierarchy::incorporate()
@@ -673,6 +595,35 @@ void Hierarchy::modernize()
 	helper.clear();
 	this->fix_list();
 }
+
+Hierarchy Hierarchy::join(const Hierarchy& right) const
+{
+	Vector<string> helper_bosses = this->bosses;
+	Vector<string> helper_employees = this->employees;
+	size_t right_size = right.employees.get_size();
+	for (size_t i = 0; i < right_size; i++)
+	{
+		if (helper_bosses[i] != right.bosses[i] && helper_employees[i] != right.employees[i])
+		{
+			helper_bosses.push_back(right.bosses[i]);
+			helper_employees.push_back(right.employees[i]);
+		}
+	}
+
+	size_t combined_hierarchy_size = helper_employees.get_size();
+	for (size_t i = 0; i < combined_hierarchy_size; i++)
+		for (size_t j = 0; j < combined_hierarchy_size; j++)
+			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
+				return Hierarchy("");
+
+	for (size_t i = 0; i < combined_hierarchy_size; i++)
+	{
+		for (size_t j = 0; j < combined_hierarchy_size; j++)
+		{
+
+		}
+	}
+}
 const string loz_new = "Uspeshnia-MishoPetrov\nMishoPetrov-Misho\nMishoPetrov-Slav\n";
 const string lozenec =
 "Uspeshnia - Gosho \n"
@@ -693,49 +644,7 @@ int main()
 	Hierarchy a("      Uspeshnia-Misho   \nUspeshnia -   Gosho\nUspeshnia-  Slavi\nGosho-Pesho\nGosho -Dancho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
 	Hierarchy b(a);
 	std::cout << b.print() << std::endl;
-	//std::cout << a.print() << std::endl;
-	std::cout << std::endl;
-	//std::cout << b.num_employees() << std::endl;
-	//std::cout << b.manager("Mecho") << std::endl;
-	//std::cout << b.num_subordinates("Slavi") << std::endl;
-	//std::cout << b.getSalary("Uspeshnia") << std::endl;
-	if (lozenec == a.print())
-		std::cout << "yes" << std::endl;
-	//std::cout << b.longest_chain() << std::endl;
-	//std::cout << b.num_overloaded() << std::endl;
-	//b.incorporate();
-	//std::cout << b.print() << std::endl;
-	//b.modernize();
-	//std::cout << b.print() << std::endl;
-	/*if (b.find("Ico_Petrov"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;
-	if (b.hire("Ico_Petrov", "Misho"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;
-	std::cout << b.print() << std::endl;
-	if (b.find("Ico_Petrov"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;*/
-	//std::cout << b.num_overloaded() << std::endl;
-	if (b.fire("Gosho"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;
-	std::cout << b.print() << std::endl;
-	if (b.fire("Pesho"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;
-	std::cout << b.print() << std::endl;
-	if (b.fire("Slavi"))
-		std::cout << "yes" << std::endl;
-	else
-		std::cout << "no" << std::endl;
-	std::cout << b.print() << std::endl;
-
+	std::cout << b.longest_chain() << std::endl;
+	
 	return 0;
 }

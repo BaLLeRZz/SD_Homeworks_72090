@@ -10,12 +10,10 @@ class Hierarchy
 private:
     Vector<string> bosses{};
     Vector<string> employees{};
-    size_t size{};
     void copy(const Hierarchy& other);
     void erase();
     void get_data_from_string(const string& data);
     void fill_hierarchy(const string& data);
-    void hire_helper(const string& who, const string& boss);
     void fix_list();
 public:
     Hierarchy(Hierarchy&& r) noexcept; // raboti
