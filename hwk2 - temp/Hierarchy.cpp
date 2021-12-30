@@ -312,48 +312,25 @@ int Hierarchy::num_employees() const
 
 int Hierarchy::num_overloaded(int level) const
 {
-	bool flag = false;
-	int num = 0, count = 0, index{};
-	Vector<string> helper{};
-	size_t helper_size{};
-	size_t number_of_employees = this->employees.get_size();
-	for (size_t i = 0; i < number_of_employees; i++)
+	size_t num{}, count{}, index{};
+	int number_of_employees = this->employees.get_size();
+	for (int i = number_of_employees - 1; i >= 0; i--)
 	{
-		flag = true;
 		index = i;
-		for (size_t j = i; j < number_of_employees; j++)
+		for (int j = number_of_employees - 1; j >= 0; j--)
 		{
-			if (this->employees[i] == this->bosses[j])
-			{
-				helper_size = helper.get_size();
-				for (size_t k = 0; k < helper_size; k++)
-				{
-					if (helper[k] == this->employees[j])
-					{
-						flag = false;
-						break;
-					}
-				}
-				if (flag)
-					helper.push_back(this->employees[j]);
-
+			if (this->bosses[i] == this->employees[j])
 				i = j;
-			}
-		}
 
-		helper_size = helper.get_size();
-		for (size_t j = 0; j < helper_size; j++)
-		{
-			std::cout << helper[i] << " ";
-			count += this->num_subordinates(helper[j]);
+			if (this->bosses[i] == "Uspeshnia")
+				break;
+
+			count++;
 		}
 
 		if (count >= level)
 			num++;
-
-		helper.clear();
 		count = 0;
-		i = index;
 	}
 
 	if (num > 0)
@@ -593,34 +570,34 @@ void Hierarchy::modernize()
 	this->fix_list();
 }
 
-Hierarchy Hierarchy::join(const Hierarchy& right) const
-{
-	Vector<string> helper_bosses = this->bosses;
-	Vector<string> helper_employees = this->employees;
-	size_t right_size = right.employees.get_size();
-	for (size_t i = 0; i < right_size; i++)
-	{
-		if (helper_bosses[i] != right.bosses[i] && helper_employees[i] != right.employees[i])
-		{
-			helper_bosses.push_back(right.bosses[i]);
-			helper_employees.push_back(right.employees[i]);
-		}
-	}
-
-	size_t combined_hierarchy_size = helper_employees.get_size();
-	for (size_t i = 0; i < combined_hierarchy_size; i++)
-		for (size_t j = 0; j < combined_hierarchy_size; j++)
-			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
-				return Hierarchy("");
-
-	for (size_t i = 0; i < combined_hierarchy_size; i++)
-	{
-		for (size_t j = 0; j < combined_hierarchy_size; j++)
-		{
-
-		}
-	}
-}
+//Hierarchy Hierarchy::join(const Hierarchy& right) const
+//{
+//	Vector<string> helper_bosses = this->bosses;
+//	Vector<string> helper_employees = this->employees;
+//	size_t right_size = right.employees.get_size();
+//	for (size_t i = 0; i < right_size; i++)
+//	{
+//		if (helper_bosses[i] != right.bosses[i] && helper_employees[i] != right.employees[i])
+//		{
+//			helper_bosses.push_back(right.bosses[i]);
+//			helper_employees.push_back(right.employees[i]);
+//		}
+//	}
+//
+//	size_t combined_hierarchy_size = helper_employees.get_size();
+//	for (size_t i = 0; i < combined_hierarchy_size; i++)
+//		for (size_t j = 0; j < combined_hierarchy_size; j++)
+//			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
+//				return Hierarchy("");
+//
+//	for (size_t i = 0; i < combined_hierarchy_size; i++)
+//	{
+//		for (size_t j = 0; j < combined_hierarchy_size; j++)
+//		{
+//
+//		}
+//	}
+//}
 const string loz_new = "Uspeshnia-MishoPetrov\nMishoPetrov-Misho\nMishoPetrov-Slav\n";
 const string lozenec =
 "Uspeshnia - Gosho \n"
@@ -645,10 +622,10 @@ const string large =
 int main()
 { // Boris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\n
 	Hierarchy a("      Uspeshnia-Misho   \nUspeshnia -   Gosho\nUspeshnia-  Slavi\nGosho-Pesho\nGosho -Dancho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	Hierarchy b(lozenec);
+	Hierarchy b(large);
 	std::cout << b.print() << std::endl;
-	b.modernize();
-	std::cout << b.print() << std::endl;
+	std::cout << b.num_overloaded() << std::endl;
+	//std::cout << b.print() << std::endl;
 	
 	return 0;
 }
