@@ -577,7 +577,14 @@ void Hierarchy::modernize()
 		{
 			if (helper[i] == this->employees[j])
 			{
-				this->fire(this->employees[j]);
+				for (size_t k = 0; k < number_of_employees; k++)
+				{
+					if (this->employees[j] == this->bosses[k])
+					{
+						this->fire(this->employees[j]);
+						break;
+					}
+				}
 				break;
 			}
 		}
@@ -638,9 +645,9 @@ const string large =
 int main()
 { // Boris-Kosta1\nBoris-Kosta2\nBoris-Kosta3\nBoris-Kosta4\nBoris-Kosta5\nBoris-Kosta6\nBoris-Kosta7\nBoris-Kosta8\nBoris-Kosta9\nBoris-Kosta10\nBoris-Kosta11\nBoris-Kosta12\nBoris-Kosta13\nBoris-Kosta14\nBoris-Kosta15\nBoris-Kosta16\nBoris-Kosta17\nBoris-Kosta18\nBoris-Kosta19\n
 	Hierarchy a("      Uspeshnia-Misho   \nUspeshnia -   Gosho\nUspeshnia-  Slavi\nGosho-Pesho\nGosho -Dancho\nSlavi-Slav1\nSlavi-Slav2\nDancho-Boris\nDancho-Kamen\nPesho-Alex\nSlav1-Mecho\nMecho-Q12Adl\n");
-	Hierarchy b(large);
+	Hierarchy b(lozenec);
 	std::cout << b.print() << std::endl;
-	b.incorporate();
+	b.modernize();
 	std::cout << b.print() << std::endl;
 	
 	return 0;
