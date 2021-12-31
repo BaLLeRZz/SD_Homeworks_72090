@@ -330,11 +330,10 @@ int Hierarchy::num_employees() const
 
 int Hierarchy::num_overloaded(int level) const
 {
-	size_t num{}, count{}, index{};
+	size_t num{}, count{};
 	int number_of_employees = this->employees.get_size();
 	for (int i = number_of_employees - 1; i >= 0; i--)
 	{
-		index = i;
 		for (int j = number_of_employees - 1; j >= 0; j--)
 		{
 			if (this->bosses[i] == this->employees[j])
@@ -637,93 +636,99 @@ bool Hierarchy::is_employed_by(const string& who, const string& boss, const Vect
 
 Hierarchy Hierarchy::join(const Hierarchy& right) const
 {
-	Vector<string> helper_bosses = this->bosses;
-	Vector<string> helper_employees = this->employees;
-	size_t right_size = right.employees.get_size();
-	for (size_t i = 0; i < right_size; i++)
+	try
 	{
-		if (helper_bosses[i] == right.bosses[i] && helper_employees[i] == right.employees[i])
-			continue;
-
-		helper_bosses.push_back(right.bosses[i]);
-		helper_employees.push_back(right.employees[i]);
-	}
-
-	int combined_hierarchy_size = helper_employees.get_size();
-	for (size_t i = 0; i < combined_hierarchy_size; i++)
-		for (size_t j = 0; j < combined_hierarchy_size; j++)
-			if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
-				return Hierarchy("");
-
-	Vector<string> helper{};
-	size_t helper_size{};
-	size_t index{};
-	for (size_t i = 0; i < combined_hierarchy_size; i++)
-	{
-		for (size_t j = 0; j < combined_hierarchy_size; j++)
+		Vector<string> helper_bosses = this->bosses;
+		Vector<string> helper_employees = this->employees;
+		size_t right_size = right.employees.get_size();
+		for (size_t i = 0; i < right_size; i++)
 		{
-			if (helper_employees[i] == helper_bosses[j])
+			if (helper_bosses[i] == right.bosses[i] && helper_employees[i] == right.employees[i])
+				continue;
+
+			helper_bosses.push_back(right.bosses[i]);
+			helper_employees.push_back(right.employees[i]);
+		}
+
+		int combined_hierarchy_size = helper_employees.get_size();
+		for (size_t i = 0; i < combined_hierarchy_size; i++)
+			for (size_t j = 0; j < combined_hierarchy_size; j++)
+				if (helper_bosses[i] == helper_employees[j] && helper_employees[i] == helper_bosses[j])
+					throw("Combined hierarchies are not correct!");
+
+		Vector<string> helper{};
+		size_t helper_size{};
+		size_t index{};
+		for (size_t i = 0; i < combined_hierarchy_size; i++)
+		{
+			for (size_t j = 0; j < combined_hierarchy_size; j++)
 			{
-				helper.push_back(helper_employees[j]);
-				index = j;
-				for (size_t k = 0; k < combined_hierarchy_size; k++)
+				if (helper_employees[i] == helper_bosses[j])
 				{
-					if (helper_employees[j] == helper_bosses[k])
+					helper.push_back(helper_employees[j]);
+					index = j;
+					for (size_t k = 0; k < combined_hierarchy_size; k++)
 					{
-						helper.push_back(helper_employees[k]);
-						j = k;
+						if (helper_employees[j] == helper_bosses[k])
+						{
+							helper.push_back(helper_employees[k]);
+							j = k;
+						}
+					}
+
+					j = index;
+					helper.push_front(helper_employees[i]);
+					helper_size = helper.get_size();
+					for (size_t k = 0; k < helper_size; k++)
+						for (size_t m = k + 1; m < helper_size; m++)
+							if (helper[k] == helper[m])
+								throw("Combined hierarchies are not correct!");
+
+					helper.clear();
+				}
+			}
+		}
+
+		for (int i = 0; i < combined_hierarchy_size; i++)
+		{
+			for (int j = 0; j < combined_hierarchy_size; j++)
+			{
+				if (helper_employees[i] == helper_employees[j] && helper_bosses[i] != helper_bosses[j])
+				{
+					if (this->is_employed_by(helper_bosses[j], helper_bosses[i], helper_bosses, helper_employees))
+					{
+						helper_bosses.pop_at(j);
+						helper_employees.pop_at(j);
+						i--;
+						combined_hierarchy_size--;
+						break;
+					}
+					else
+					{
+						helper_bosses.pop_at(i);
+						helper_employees.pop_at(i);
+						i--;
+						combined_hierarchy_size--;
+						break;
 					}
 				}
-
-				j = index;
-				helper.push_front(helper_employees[i]);
-				helper_size = helper.get_size();
-				for (size_t k = 0; k < helper_size; k++)
-					for (size_t m = k + 1; m < helper_size; m++)
-						if (helper[k] == helper[m])
-							return Hierarchy("");
-
-				helper.clear();
 			}
 		}
-	}
 
-	for (int i = 0; i < combined_hierarchy_size; i++)
-	{
-		for (int j = 0; j < combined_hierarchy_size; j++)
+		string list{};
+		for (size_t i = 0; i < combined_hierarchy_size; i++)
 		{
-			if (helper_employees[i] == helper_employees[j] && helper_bosses[i] != helper_bosses[j])
-			{
-				if (this->is_employed_by(helper_bosses[j], helper_bosses[i], helper_bosses, helper_employees))
-				{
-					helper_bosses.pop_at(j);
-					helper_employees.pop_at(j);
-					i--;
-					combined_hierarchy_size--;
-					break;
-				}
-				else
-				{
-					helper_bosses.pop_at(i);
-					helper_employees.pop_at(i);
-					i--;
-					combined_hierarchy_size--;
-					break;
-				}
-			}
+			list += helper_bosses[i];
+			list += "-";
+			list += helper_employees[i];
+			list += "\n";
 		}
+		return Hierarchy(list);
 	}
-
-	string list{};
-	for (size_t i = 0; i < combined_hierarchy_size; i++)
+	catch (...)
 	{
-		list += helper_bosses[i];
-		list += "-";
-		list += helper_employees[i];
-		list += "\n";
+		std::cout << "Combined hierarchies are not correct!" << std::endl;
 	}
-
-	return Hierarchy(list);
 }
 const string loz_new = "Uspeshnia-MishoPetrov\nMishoPetrov-Misho\nMishoPetrov-Slav\n";
 const string lozenec =
