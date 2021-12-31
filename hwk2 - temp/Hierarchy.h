@@ -16,6 +16,7 @@ private:
     void fill_hierarchy(const string& data);
     bool is_correct() const;
     void fix_list();
+    bool is_employed_by(const string& who, const string& boss, const Vector<string>& helper_bosses, const Vector<string>& helper_employees) const;
 public:
     Hierarchy(Hierarchy&& r) noexcept; // raboti
     Hierarchy(const Hierarchy& r); // raboti
